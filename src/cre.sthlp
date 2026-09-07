@@ -7,7 +7,7 @@
 {title:Title}
 
 {p2colset 5 12 14 2}{...}
-{p2col :{hi:cre} {hline 2}}Correlated random-effects regression with multiway fixed effects on unbalanced panels{p_end}
+{p2col :{hi:cre} {hline 2}}Correlated random-effects regression with multiway fixed effects on an irregular support{p_end}
 {p2colreset}{...}
 
 
@@ -63,7 +63,7 @@
 
 {pstd}
 {cmd:cre} fits correlated random-effects (Mundlak) regressions with any number of fixed-effect
-dimensions, on balanced or unbalanced panels. For the model
+dimensions, on balanced panels and on irregular supports. For the model
 
 {pstd}{space 4}y = x'b + a_1(i_1) + ... + a_M(i_M) + e,
 
@@ -72,9 +72,9 @@ where observation o belongs to category i_m(o) of each of the M dimensions, {cmd
 for every regressor, controls spanning the projection of the regressor onto the joint span of
 the fixed effects, appends them to the regressor list, and runs the wrapped estimation command.
 When the wrapped command is {helpb regress}, the coefficients on the regressors equal those of
-the multiway fixed-effects (within) estimator, on any support and for any number of dimensions
-(Harrison, Canavire Bacarreza, Jacho-Ch{c a'}vez, and Rios-Avila 2026). This is the multiway
-and unbalanced-panel counterpart of the Mundlak equivalence behind {helpb xtreg}{cmd:, cre}
+the multiway fixed-effects (within) estimator, on an irregular support and for any number of dimensions
+(Harrison, Canavire Bacarreza, Jacho-Ch{c a'}vez, and Rios-Avila 2026). This is the multiway,
+irregular-support counterpart of the Mundlak equivalence behind {helpb xtreg}{cmd:, cre}
 (Mundlak 1978; Wooldridge 2019), in which the panel means of the regressors are the controls.
 
 {pstd}
@@ -194,7 +194,7 @@ matrix is not positive definite, Wald statistics computed from it are reported a
 {opt pitest} tests the null hypothesis that the regressors are uncorrelated with the fixed
 effects, that is, that all coefficients on the controls are zero. Under the null, a
 random-effects treatment of the fixed effects would be consistent. It is the counterpart, for
-two or more absorbed dimensions and an unbalanced panel, of the Mundlak test that
+two or more absorbed dimensions and an irregular support, of the Mundlak test that
 {helpb xtreg}{cmd:, cre} reports and {helpb estat mundlak} performs after one-way panel
 estimation. The coefficients on the controls converge more slowly than those on the
 regressors, at the rate of the smallest absorbed dimension rather than of the sample size, so

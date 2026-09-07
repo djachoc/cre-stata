@@ -621,7 +621,7 @@ program cre_display
 		di as txt "   Mundlak gap g_X = " as res "." as txt " (not computed with weights)"
 	}
 	di as txt "{hline 79}"
-	di as txt "{p 0 6 2}Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on any support.{p_end}"
+	di as txt "{p 0 6 2}Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on an irregular support.{p_end}"
 	if e(cre_proportional)==1 {
 		di as txt "{p 0 6 2}Note: the cell frequencies are proportional, so dimension-wise means (egen ..., by() for each dimension) would also reproduce the fixed-effects estimator here.{p_end}"
 	}

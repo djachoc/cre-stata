@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="cre: correlated random effects with multiway fixed effects, on any support" width="640">
+  <img src="assets/logo.svg" alt="cre: correlated random effects with multiway fixed effects, on an irregular support" width="640">
 </p>
 
 <p align="center">
@@ -11,9 +11,9 @@
 </p>
 
 **`cre`** fits correlated random-effects (Mundlak) regressions with any number of fixed-effect
-dimensions on balanced or unbalanced panels. It builds, for every regressor, a control equal to
+dimensions on balanced panels and on irregular supports. It builds, for every regressor, a control equal to
 its projection onto the joint span of the fixed effects, so that the coefficients on the
-regressors are the multiway fixed-effects estimates **on any support**, and it comes with
+regressors are the multiway fixed-effects estimates **on an irregular support**, and it comes with
 standard errors that allow for the dependence a multiway panel induces and with the Mundlak
 test at the right rate. The by-hand alternative, the means of each regressor along each
 dimension, reproduces the fixed-effects estimator only when the cell frequencies are

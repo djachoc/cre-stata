@@ -2,7 +2,7 @@ v 3
 d cre. Correlated random effects by joint projection, with support diagnostics and inference for multiway panels
 d
 d cre is a prefix command that builds Mundlak controls spanning the joint projection of the
-d regressors onto the fixed-effect span, for any number of dimensions and any support, and
+d regressors onto the fixed-effect span, for any number of dimensions and an irregular support, and
 d wraps any estimation command. For a wrapped regress it provides the variance estimators for
 d the joint-projection slope and the test of no correlated effects of Harrison, Canavire
 d Bacarreza, Jacho-Chavez and Rios-Avila (2026), together with the support diagnostics their
