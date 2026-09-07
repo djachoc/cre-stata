@@ -1,0 +1,3 @@
+v 3
+d cre: correlated random effects by joint projection
+p cre Correlated random effects by joint projection, with support diagnostics and inference

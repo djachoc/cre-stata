@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="240" viewBox="0 0 720 240" role="img" aria-label="cre: correlated random effects with multiway fixed effects">
+  <defs>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f6e73"/>
+      <stop offset="1" stop-color="#083d4a"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4b942"/>
+      <stop offset="1" stop-color="#e0891c"/>
+    </linearGradient>
+  </defs>
+  <!-- an irregular support: a product x market grid with cells missing, one cell lit -->
+  <g transform="translate(36,30)">
+    <g fill="url(#teal)" stroke="#ffffff" stroke-width="3">
+      <rect x="0"   y="0"   width="42" height="42" rx="7"/>
+      <rect x="48"  y="0"   width="42" height="42" rx="7"/>
+      <rect x="96"  y="0"   width="42" height="42" rx="7"/>
+      <rect x="0"   y="48"  width="42" height="42" rx="7"/>
+      <rect x="96"  y="48"  width="42" height="42" rx="7"/>
+      <rect x="144" y="48"  width="42" height="42" rx="7"/>
+      <rect x="48"  y="96"  width="42" height="42" rx="7"/>
+      <rect x="96"  y="96"  width="42" height="42" rx="7"/>
+      <rect x="0"   y="144" width="42" height="42" rx="7"/>
+      <rect x="48"  y="144" width="42" height="42" rx="7"/>
+      <rect x="144" y="144" width="42" height="42" rx="7"/>
+    </g>
+    <!-- empty cells of the support, drawn as outlines -->
+    <g fill="none" stroke="#9fb8bd" stroke-width="2" stroke-dasharray="5 5">
+      <rect x="144" y="0"   width="42" height="42" rx="7"/>
+      <rect x="48"  y="48"  width="42" height="42" rx="7"/>
+      <rect x="0"   y="96"  width="42" height="42" rx="7"/>
+      <rect x="144" y="96"  width="42" height="42" rx="7"/>
+      <rect x="96"  y="144" width="42" height="42" rx="7"/>
+    </g>
+    <!-- the joint projection: one cell lit -->
+    <rect x="96" y="48" width="42" height="42" rx="7" fill="url(#amber)" stroke="#ffffff" stroke-width="3"/>
+  </g>
+  <!-- wordmark -->
+  <text x="262" y="122" font-family="Georgia, 'Times New Roman', serif" font-size="112" font-weight="700" fill="#083d4a" letter-spacing="-2">cre</text>
+  <text x="264" y="162" font-family="Helvetica, Arial, sans-serif" font-size="21" fill="#0f6e73" letter-spacing="0.5">correlated random effects</text>
+  <text x="264" y="190" font-family="Helvetica, Arial, sans-serif" font-size="21" fill="#0f6e73" letter-spacing="0.5">with multiway fixed effects, on any support</text>
+  <text x="264" y="218" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#5b7a80">for Stata</text>
+</svg>
