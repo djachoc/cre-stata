@@ -9,8 +9,8 @@ joint-projection controls, and adds what Harrison, Canavire Bacarreza, Jacho-Cha
 Rios-Avila (2026) established:
 
 - `jm`, a synonym of `compact`: one control per regressor, its projection onto the joint span
-  of the fixed effects, so that the slopes are the multiway fixed-effects estimates on any
-  support.
+  of the fixed effects, so that the slopes are the multiway fixed-effects estimates on an
+  irregular support.
 - Support diagnostics after every run (`nodiagnostics` to skip): the number of observations
   and of dimensions, the levels of each dimension and the smallest of them, the rank of the
   fixed-effect design (exact up to `dcap()` levels, from reghdfe beyond), connectivity,
