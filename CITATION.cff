@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use cre, please cite the command's manuscript and the paper whose methods it implements."
 title: "cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels"
-version: 0.2.0
+version: 0.1.0
 date-released: 2026-09-07
 license: MIT
 repository-code: "https://github.com/djachoc/cre-stata"

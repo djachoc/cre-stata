@@ -1,4 +1,4 @@
-*! version 0.2.0  07Sep2026  cre_diag: support diagnostics for cre (Mata; needs ftools)
+*! version 0.1.0  07Sep2026  cre_diag: support diagnostics for cre (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * Kept in its own file so that the Mata class Factor (ftools) is resolved when
 * this file is first loaded, after cre.ado has run -ftools, check-.

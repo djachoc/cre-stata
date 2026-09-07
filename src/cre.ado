@@ -1,14 +1,12 @@
-*! version 0.2.0  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
+*! version 0.1.0  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
-* v0.2.0  (alpha) the exact branch (fevce(lc), fevce(plugin)) on the reduced core: the
-*         dense object is W'W of order D - N_max, never the D x D Gram matrix; the
-*         application's leverage correction in 14 s (was 27 min) and its plug-in in
-*         22 s (was declined); dcap() now bounds D - N_max, default 10,000; the
-*         diagnostics' exact rank from the same reduced Gram matrix
 * v0.1.0  (alpha) first public release: the joint-projection controls of Fernando
 *         Rios-Avila's cre prefix command, plus the support diagnostics, the Mundlak gap,
 *         fevce() and pitest of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
-*         (2026); displays, notes and help say what each result means
+*         (2026); displays, notes and help say what each result means; the exact branch
+*         (fevce(lc), fevce(plugin)) on the reduced core, W'W of order D - N_max and never
+*         the D x D Gram matrix, so that the application's leverage correction takes 13 s
+*         and its plug-in 21 s; dcap() bounds D - N_max, default 10,000
 * Fernando's earlier cre, on SSC:
 * v1.2.1  CRE Improvements on Options Keep drop
 * v1.2.0  CRE Correlated RE model. Allows for two word commands and long vars
@@ -281,7 +279,7 @@ program define cre, properties(prefix)
 			}
 		}
 		adde local m_list `vlist'
-		adde local cre_version "0.2.0"
+		adde local cre_version "0.1.0"
 		if "`compact'"!="" adde local cre_branch "compact"
 		else adde local cre_branch "components"
 		adde local cre_fe `felist'

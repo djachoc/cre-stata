@@ -1,4 +1,4 @@
-*! version 0.2.0  07Sep2026  cre_vce: variance estimators for the joint-projection slope (Mata; needs ftools)
+*! version 0.1.0  07Sep2026  cre_vce: variance estimators for the joint-projection slope (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * Every estimator here is the sandwich (Xt'Xt)^-1 M (Xt'Xt)^-1 of the feasible
 * inference section of Harrison, Canavire Bacarreza, Jacho-Chavez and
