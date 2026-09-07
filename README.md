@@ -166,7 +166,7 @@ provenance and the attribution.
 - [Benjamin O. Harrison](https://benhars.com/), Emory University
 - [David T. Jacho-Chavez](https://www.davidjachochavez.org), Emory University
 
-`cre` relies on Sergio Correia's [`reghdfe`](https://github.com/sergiocorreia/reghdfe) and
+Note: `cre` relies on Sergio Correia's [`reghdfe`](https://github.com/sergiocorreia/reghdfe) and
 [`ftools`](https://github.com/sergiocorreia/ftools). The orange-juice data originate in the
 Dominick's Finer Foods database of the Kilts Center for Marketing, University of Chicago Booth
 School of Business.
