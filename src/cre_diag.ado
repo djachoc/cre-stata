@@ -1,4 +1,4 @@
-*! version 0.1.0  07Sep2026  cre_diag: support diagnostics for cre (Mata; needs ftools)
+*! version 0.2.0  07Sep2026  cre_diag: support diagnostics for cre (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * Kept in its own file so that the Mata class Factor (ftools) is resolved when
 * this file is first loaded, after cre.ado has run -ftools, check-.
@@ -19,7 +19,7 @@
 * singletons are kept and is an upper bound for it at M >= 3.
 * ---------------------------------------------------------------------------
 program cre_diag, rclass
-	syntax [if] [in], abs(varlist) [xf(varlist) px(varlist) dcap(integer 3000) dfa(real -1)]
+	syntax [if] [in], abs(varlist) [xf(varlist) px(varlist) dcap(integer 10000) dfa(real -1)]
 	marksample touse
 	markout `touse' `abs' `xf' `px'
 	mata: cre_diag_mata("`abs'", "`xf'", "`px'", "`touse'", `dcap', `dfa')
@@ -42,8 +42,8 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	class Factor scalar F, F2
 	string rowvector fev
 	real scalar n, M, m, l, K, D, d, connected, prop, propdev, cmax, c2max
-	real scalar Gmax, Nast, gX, s, bit, r, dev, tol, exact, c
-	real colvector Nm, off, ev
+	real scalar Gmax, Nast, gX, s, bit, r, dev, tol, exact, c, ms, Dp, a, b
+	real colvector Nm, off, ev, others, ooff, Tm
 	real rowvector e
 	real matrix L, T, A, X, PX, C, B, G, keys, E, S, Mn
 
@@ -109,24 +109,35 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		}
 	}
 
-	// rank of Delta: exact from the D x D Gram matrix, else reghdfe's e(df_a)
-	exact = (D <= dcap)
+	// rank of Delta: exact, as N_max + rank(W'W) with W = Q_{m*} Delta_{-m*} and
+	// W'W = Delta_{-m*}'Delta_{-m*} - C' diag(1/T) C built from counts (the reduced
+	// core of cre_exact.ado), when D - N_max is at most dcap; else reghdfe's e(df_a)
+	ms = 1
+	for (m = 2; m <= M; m++) {
+		if (Nm[m] > Nm[ms]) ms = m
+	}
+	Dp = D - Nm[ms]
+	exact = (Dp <= dcap)
 	if (exact) {
-		A = J(D, D, 0)
-		for (m = 1; m <= M; m++) {
-			A[|off[m] + 1, off[m] + 1 \ off[m + 1], off[m + 1]|] = diag(T[|1, m \ Nm[m], m|])
-			for (l = m + 1; l <= M; l++) {
-				F2 = _factor(L[., (m, l)])
-				keys = J(F2.num_levels, 2, .)
-				keys[F2.levels, .] = L[., (m, l)]
-				for (r = 1; r <= F2.num_levels; r++) {
-					A[off[m] + keys[r, 1], off[l] + keys[r, 2]] = F2.counts[r]
-					A[off[l] + keys[r, 2], off[m] + keys[r, 1]] = F2.counts[r]
+		if (Dp == 0) d = Nm[ms]
+		else {
+			others = selectindex((1::M) :!= ms)
+			ooff = 0 \ runningsum(Nm[others])
+			Tm = T[|1, ms \ Nm[ms], ms|]
+			C = J(Nm[ms], Dp, 0)
+			A = J(Dp, Dp, 0)
+			for (a = 1; a <= rows(others); a++) {
+				m = others[a]
+				C[|1, ooff[a] + 1 \ Nm[ms], ooff[a + 1]|] = cre_diag_xtab(L[., ms], Nm[ms], L[., m], Nm[m])
+				for (b = 1; b <= rows(others); b++) {
+					l = others[b]
+					A[|ooff[a] + 1, ooff[b] + 1 \ ooff[a + 1], ooff[b + 1]|] = cre_diag_xtab(L[., m], Nm[m], L[., l], Nm[l])
 				}
 			}
+			A = A - cross(C, C :/ Tm)
+			ev = symeigenvalues(A)'
+			d = Nm[ms] + sum(ev :> Dp * epsilon(1) * max(ev))
 		}
-		ev = symeigenvalues(A)'
-		d = sum(ev :> 1e-9 * max(ev))
 	}
 	else {
 		d = dfa
@@ -167,5 +178,19 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	st_numscalar("__cre_N_ast", Nast)
 	st_numscalar("__cre_g_X", gX)
 	st_matrix("__cre_Nfe", Nm')
+}
+
+// dense na x nb table of counts of the pair (a, b), a in 1..na, b in 1..nb
+real matrix cre_diag_xtab(real colvector a, real scalar na, real colvector b, real scalar nb)
+{
+	class Factor scalar F
+	real matrix keys
+	real colvector v
+	F = _factor((a, b))
+	keys = J(F.num_levels, 2, .)
+	keys[F.levels, .] = (a, b)
+	v = J(na * nb, 1, 0)
+	v[(keys[., 1] :- 1) :* nb :+ keys[., 2]] = F.counts
+	return(colshape(v, nb))
 }
 end

@@ -1,5 +1,19 @@
 # cre changelog
 
+## 0.2.0 (alpha, 2026-09-07)
+
+The exact projector, which `fevce(lc)` and `fevce(plugin)` need, is now formed on a reduced
+core: the largest fixed-effect dimension is absorbed exactly and the only dense object is a
+square matrix of the number of levels outside it (the two-step absorption of the paper's
+implementation appendix), built from counts alone; no object of the size of the total number of
+levels squared, or of the sample, is ever formed, and levels whose cells are all singletons are
+skipped. On the paper's application (106,139 observations, 11,893 levels, 2,244 outside the
+largest dimension) the leverage correction runs in 14 seconds where it took 27 minutes, and the
+plug-in in 22 seconds where it was declined; both agree with the independent Python
+implementation to a relative 1e-13. `dcap()` now bounds the number of levels outside the largest
+dimension, default 10,000, and the support diagnostics compute the exact rank the same way. The
+dense version stays in the validation harness as a second oracle. No change to any estimate.
+
 ## 0.1.0 (alpha, 2026-09-07)
 
 First public release, by Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison

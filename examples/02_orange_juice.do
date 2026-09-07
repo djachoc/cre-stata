@@ -44,6 +44,12 @@ cre, jm abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal 
 cre, jm fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
 cre, jm fevce(white) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
 
+* 2b. The two estimators that need the exact projector: the leverage correction and the
+*     plug-in over the variance components.  With 11,893 fixed-effect levels, of which 2,244
+*     lie outside the largest dimension, each runs in seconds.
+cre, jm fevce(lc) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
+cre, jm fevce(plugin) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
+
 * 3. Clustering on store and week, two overlapping dimensions that are not absorbed; this
 *    allows arbitrary dependence within a store across brands and weeks, serial dependence
 *    included, and within a week across stores and brands

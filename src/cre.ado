@@ -1,5 +1,10 @@
-*! version 0.1.0  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
+*! version 0.2.0  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
+* v0.2.0  (alpha) the exact branch (fevce(lc), fevce(plugin)) on the reduced core: the
+*         dense object is W'W of order D - N_max, never the D x D Gram matrix; the
+*         application's leverage correction in 14 s (was 27 min) and its plug-in in
+*         22 s (was declined); dcap() now bounds D - N_max, default 10,000; the
+*         diagnostics' exact rank from the same reduced Gram matrix
 * v0.1.0  (alpha) first public release: the joint-projection controls of Fernando
 *         Rios-Avila's cre prefix command, plus the support diagnostics, the Mundlak gap,
 *         fevce() and pitest of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
@@ -165,6 +170,8 @@ program define cre, properties(prefix)
 				cre_exact if `touse', abs(`felist') xf(`xflist') px(`pxlist') nu(`nu') ///
 				    kind(`fevce') d(`dfe') dcap(`dcap') memcap(`memcap')
 				matrix `Vfe' = r(V)
+				** the exact branch computes the exact rank; post it, not reghdfe's count
+				local dfe = r(d_delta)
 				local fscalars trR V_pd Rmin n_inert
 				if "`fevce'"=="plugin" {
 					local fscalars `fscalars' rho_n sigmin_A rank_A ncol_A nrow_A sbar2 coef_sbar minPF
@@ -274,7 +281,7 @@ program define cre, properties(prefix)
 			}
 		}
 		adde local m_list `vlist'
-		adde local cre_version "0.1.0"
+		adde local cre_version "0.2.0"
 		if "`compact'"!="" adde local cre_branch "compact"
 		else adde local cre_branch "components"
 		adde local cre_fe `felist'
@@ -299,7 +306,7 @@ end
 
 program cre_opt, rclass
 	syntax , abs(varlist) [drop prefix(name) compact jm dropsingletons replace ///
-	         hdfe(string asis) exclude(string asis) noDIAGnostics dcap(integer 3000) ///
+	         hdfe(string asis) exclude(string asis) noDIAGnostics dcap(integer 10000) ///
 	         fevce(string) pitest memcap(real 5e7) pinull(numlist) pirest(name)]
 	if "`prefix'"=="" local prefix m
 	if "`jm'"!="" local compact compact

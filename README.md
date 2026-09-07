@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/lifecycle-alpha-e0891c" alt="lifecycle: alpha">
-  <img src="https://img.shields.io/badge/version-0.1.0-0f6e73" alt="version 0.1.0">
+  <img src="https://img.shields.io/badge/version-0.2.0-0f6e73" alt="version 0.2.0">
   <img src="https://img.shields.io/badge/Stata-14%2B-083d4a" alt="Stata 14+">
   <img src="https://img.shields.io/badge/requires-reghdfe%20%7C%20ftools-5b7a80" alt="requires reghdfe and ftools">
   <img src="https://img.shields.io/badge/license-MIT-f4b942" alt="MIT license">
@@ -23,7 +23,7 @@ short on your data.
 The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chávez and Rios-Avila
 (2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chávez (2026),
 *cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels*.
-This is the alpha release, version 0.1.0.
+This is the alpha release, version 0.2.0.
 
 ## Installation
 
@@ -110,7 +110,7 @@ random effects by a factor of about seven.
 | Example | What it shows | Time |
 |---|---|---|
 | [`01_quickstart.do`](examples/01_quickstart.do) · [log](examples/01_quickstart.log) | the joint-projection regression on `auto`, three kinds of standard errors, the Mundlak test | seconds |
-| [`02_orange_juice.do`](examples/02_orange_juice.do) · [log](examples/02_orange_juice.log) | the paper's application on the Dominick's orange-juice panel: diagnostics, `union`, `white` and `cluster(store week)` standard errors, the Mundlak test and a restricted test | under a minute |
+| [`02_orange_juice.do`](examples/02_orange_juice.do) · [log](examples/02_orange_juice.log) | the paper's application on the Dominick's orange-juice panel: diagnostics, all five standard errors including the two that need the exact projector, the Mundlak test and a restricted test | about a minute |
 | [`00_get_data.do`](examples/00_get_data.do) | fetches the orange-juice panel from CRAN and writes `data/orangeJuice.dta`; run by `02_orange_juice.do` the first time (needs R) | a minute |
 
 The logs were produced by the do-files as they stand, with `src/` on the adopath.
@@ -124,7 +124,7 @@ The logs were produced by the do-files as they stand, with `src/` on the adopath
 | `fevce(white)` | heteroskedasticity-robust standard errors: independent disturbances |
 | `fevce(union)` | clustered on all absorbed dimensions at once: components shared within any absorbed cell |
 | `fevce(cluster(varlist))` | clustered on overlapping dimensions of your choice, absorbed or not; clustering on the unit allows serial dependence within it |
-| `fevce(lc)`, `fevce(plugin)` | the leverage correction and the plug-in over the variance components, for panels with at most `dcap()` fixed-effect levels |
+| `fevce(lc)`, `fevce(plugin)` | the leverage correction and the plug-in over the variance components; the largest dimension is absorbed exactly, so only the levels outside it count against `dcap()` |
 | `pitest` | the Mundlak test, with `pirest()` and `pinull()` for a restricted hypothesis |
 | `nodiagnostics` | skip the support diagnostics and the Mundlak gap |
 

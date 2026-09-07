@@ -1,4 +1,4 @@
-*! version 0.1.0  07Sep2026  cre_exact: the exact branch -- leverage correction and plug-in (Mata; needs ftools)
+*! version 0.2.0  07Sep2026  cre_exact: the exact branch -- leverage correction and plug-in (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * The two estimators of the feasible inference section of Harrison, Canavire
 * Bacarreza, Jacho-Chavez and Rios-Avila (2026) that need the EXACT projector
@@ -7,18 +7,24 @@
 *                                                    under a constant variance
 *   plugin  M_PI from the moment system            the plug-in over the
 *                                                    interaction variances
-* Nothing n x n is formed.  With G+ the pseudo-inverse of the D x D Gram
-* matrix Delta'Delta (D = sum_m N_m), diag(P_[Delta]) is a gather of M^2
-* entries of G+ per observation, R_oo = 1 - P_oo - xt_o'(Xt'Xt)^-1 xt_o, and
-* every entry of the moment design matrix is a grouped pass over the 2^M - 1
-* sharing levels with Pi = Z S Z', Z = [Delta, Xt], S = blockdiag(G+, (Xt'Xt)^-1)
-* (the grouped computation of the paper's implementation appendix; the Python reference implementation in
-* numerical/monte_carlo/{leverage,plugin}.py is the same algebra).  The one
-* dense object is A_L = Delta_L' Z, |T_L| x (D + K), which is why the plug-in
-* is gated by memcap().
+* The reduced core (the paper's implementation appendix, two-step absorption).
+* With m* the dimension with the most categories and W = Q_{m*} Delta_{-m*},
+*     P_[Delta] = P_{m*} + W G_W W',   G_W = (W'W)^+,
+*     W'W = Delta_{-m*}'Delta_{-m*} - C' diag(1/T) C,   C = Delta_{m*}'Delta_{-m*},
+* so the only dense object is W'W, of order D' = D - N_{m*}, built from counts.
+* Then Pi = P_[Delta] + Lambda = P_{m*} + W G_W W' + Xt H Xt', and
+*   diag(P)_o   = 1/T_{j(o)} + w_o' G_W w_o,  w_o = delta_o - C[j(o),.]'/T_{j(o)},
+*   Sigma_L     = n - sum_{(t,j)} n_tj^2/T_j - tr(G_W A_L^W' A_L^W) - tr(H A_L^X' A_L^X),
+*                 A_L^W = Delta_L'W = C_{L,-m*} - C_{L,m*} diag(1/T) C,  A_L^X = cell sums of Xt,
+*   ||Delta_e' R Delta_F||_F^2 = ||N - M||_F^2,  N the joint counts of e u F (sparse),
+*                 M = C_{e,m*} diag(1/T) C_{m*,F} + A_e^W G_W A_F^W' + A_e^X H A_F^X'.
+* No D x D and no N_{m*} x N_{m*} object is ever formed; levels whose cells are
+* all singletons (C_L = 0) are never formed at all.  The dense D x D version
+* that this replaced lives in validate/cre_exact_dense.ado as the harness oracle.
+* The Python prototype of the same algebra is validate/reduced_core.py.
 program cre_exact, rclass
 	syntax [if] [in], abs(varlist) xf(varlist) px(varlist) nu(varname) kind(string) ///
-	    [d(real 0) dcap(integer 3000) memcap(real 5e7) pinvbound(real 0)]
+	    [d(real 0) dcap(integer 10000) memcap(real 5e7) pinvbound(real 0)]
 	marksample touse
 	markout `touse' `abs' `xf' `px' `nu'
 	mata: cre_exact_mata("`abs'", "`xf'", "`px'", "`nu'", "`touse'", "`kind'", ///
@@ -27,7 +33,7 @@ program cre_exact, rclass
 	matrix `V' = __cre_V
 	matrix drop __cre_V
 	return matrix V = `V'
-	foreach s in n d_delta trR V_pd Rmin n_inert {
+	foreach s in n d_delta trR V_pd Rmin n_inert Dred mstar {
 		return scalar `s' = scalar(__cre_`s')
 		scalar drop __cre_`s'
 	}
@@ -60,6 +66,74 @@ real matrix cre_gsum(real matrix V, real colvector code, real scalar nT)
 	return(out)
 }
 
+// dense na x nb table of counts of the pair (a, b), a in 1..na, b in 1..nb
+real matrix cre_xtab(real colvector a, real scalar na, real colvector b, real scalar nb)
+{
+	class Factor scalar F
+	real matrix keys
+	real colvector v
+	F = _factor((a, b))
+	keys = J(F.num_levels, 2, .)
+	keys[F.levels, .] = (a, b)
+	v = J(na * nb, 1, 0)
+	v[(keys[., 1] :- 1) :* nb :+ keys[., 2]] = F.counts
+	return(colshape(v, nb))
+}
+
+// the joint cells of two codings: keys (t, j) and their counts, sorted by j
+void cre_joint(real colvector t, real colvector j, real colvector tu, real colvector ju,
+               real colvector nu)
+{
+	class Factor scalar F
+	real matrix keys
+	real colvector o
+	F = _factor((t, j))
+	keys = J(F.num_levels, 2, .)
+	keys[F.levels, .] = (t, j)
+	o = order(keys[., 2], 1)
+	tu = keys[o, 1]
+	ju = keys[o, 2]
+	nu = F.counts[o]
+}
+
+// P_{m*} V: cell means along m*, gathered back to the observations
+real matrix cre_Pms(real matrix V, real colvector js, real colvector T)
+{
+	real matrix S
+	S = cre_gsum(V, js, rows(T)) :/ T
+	return(S[js, .])
+}
+
+// W' V = Delta_{-m*}' Q_{m*} V, a D' x k array
+real matrix cre_Wt(real matrix V, real matrix L, real colvector others, real colvector Nm,
+                   real colvector ooff, real colvector js, real colvector T)
+{
+	real matrix Q, out
+	real scalar a, m
+	Q = V - cre_Pms(V, js, T)
+	out = J(ooff[rows(ooff)], cols(V), 0)
+	for (a = 1; a <= rows(others); a++) {
+		m = others[a]
+		out[|ooff[a] + 1, 1 \ ooff[a + 1], cols(V)|] = cre_gsum(Q, L[., m], Nm[m])
+	}
+	return(out)
+}
+
+// W U = Q_{m*} Delta_{-m*} U for a D' x k array U
+real matrix cre_Wapply(real matrix U, real matrix L, real colvector others, real colvector ooff,
+                       real colvector js, real colvector T)
+{
+	real matrix out, blk
+	real scalar a, m
+	out = J(rows(js), cols(U), 0)
+	for (a = 1; a <= rows(others); a++) {
+		m = others[a]
+		blk = U[|ooff[a] + 1, 1 \ ooff[a + 1], cols(U)|]
+		out = out + blk[L[., m], .]
+	}
+	return(out - cre_Pms(out, js, T))
+}
+
 void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
                     string scalar nuv, string scalar touse, string scalar kind,
                     real scalar dcap, real scalar memcap, real scalar pinvbound)
@@ -67,20 +141,19 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	class Factor scalar F
 	string rowvector fev
 	string scalar lvlab
-	real matrix L, X, PX, Xt, Gm, EV, Gp, S, bread, DtX, Cfit, Bml, Amat, V, meat
-	real matrix keys, A_L, Gam, W, SGe, SGF, Ae, BF, mask, key
-	real colvector Nm, off, nu, Pdiag, Ldiag, Rdiag, w, cnt, code, codeJ, cntJ
-	real colvector first, su, tu, u, q, mhat, theta, sig2, sig2p, rev, lvsize, ordr
-	real colvector CL, Sig, TR, PF, TL, exR, exL, inert, keep
-	real rowvector ev, e, sv, fl
-	real scalar n, M, K, D, d, tol, trR, m, l, s, nlev, i, j, r, k, sbar2, coef
-	real scalar nT, n2, crossv, quadv, cmax, Gmax, minPF, rho, smin, rankA, nE, nFc
-	real scalar Rmin, ninert, a, b, step, dd
+	real matrix L, X, PX, Xt, C, CT, Gram, WtW, EV, G, GR, bread, Amat, V, meat
+	real matrix mask, AW, AX, Mx, Bg, info1, info2, TRSR, exRSR
+	real colvector Nm, ooff, others, js, T, q, vG, vGR, nu, Pdiag, Ldiag, Rdiag, w
+	real colvector ia, ib, code, cnt, tu, ju, nuu, u, mhat, theta, sig2, sig2p
+	real colvector lvsize, ordr, CL, Sig, Pm, TR, PF, TL, exR, exL, inert, keep
+	real colvector t1, j1, n1, j2, s2, n2, ts, ss, ns, ta, sb, sstart, send, Ecol, Frow
+	real rowvector ev, e, sv
+	real scalar n, M, K, D, Dp, Ns, ms, d, p, tol, trR, m, l, a, b, s, i, j, r, k
+	real scalar nlev, nT, nE, nFc, cmax, Gmax, minPF, rho, smin, rankA, sbar2, coef
+	real scalar Rmin, ninert, step, dd, Te, TF, MM, NM, NN, jj
 	pointer(real colvector) rowvector pcode, pcnt
-	pointer(real matrix) rowvector pA, pGam
+	pointer(real matrix) rowvector pAW, pAX
 	pointer(real rowvector) rowvector plv
-	real matrix TRSR, exRSR
-	real colvector Ecol, Frow
 
 	// ---- data ----------------------------------------------------------
 	fev = tokens(fes)
@@ -101,54 +174,76 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		Gmax = max((Gmax, max(F.counts)))
 	}
 	D = sum(Nm)
-	off = 0 \ runningsum(Nm)
-	if (D > dcap) {
-		errprintf("fevce(%s) needs the exact projector: the fixed-effect design has D = %g levels, above dcap(%g)\n", kind, D, dcap)
+
+	// ---- the reduced core: m*, C, W'W, G_W ------------------------------
+	ms = 1
+	for (m = 2; m <= M; m++) {
+		if (Nm[m] > Nm[ms]) ms = m
+	}
+	Ns = Nm[ms]
+	js = L[., ms]
+	T = cre_gsum(J(n, 1, 1), js, Ns)
+	if (M > 1) {
+		others = selectindex((1::M) :!= ms)
+		Dp = sum(Nm[others])
+		ooff = 0 \ runningsum(Nm[others])
+	}
+	else {
+		others = J(0, 1, .)
+		Dp = 0
+		ooff = 0
+	}
+	if (Dp > dcap) {
+		errprintf("fevce(%s) needs the exact projector: the fixed-effect design has %g levels outside its largest dimension, above dcap(%g)\n", kind, Dp, dcap)
 		exit(498)
 	}
-
-	// ---- (Delta'Delta)^+ and d_[Delta] ---------------------------------
-	Gm = J(D, D, 0)
-	for (m = 1; m <= M; m++) {
-		F = _factor(L[., m])
-		Gm[|off[m] + 1, off[m] + 1 \ off[m + 1], off[m + 1]|] = diag(F.counts)
-		for (l = m + 1; l <= M; l++) {
-			F = _factor(L[., (m, l)])
-			keys = J(F.num_levels, 2, .)
-			keys[F.levels, .] = L[., (m, l)]
-			for (r = 1; r <= F.num_levels; r++) {
-				Gm[off[m] + keys[r, 1], off[l] + keys[r, 2]] = F.counts[r]
-				Gm[off[l] + keys[r, 2], off[m] + keys[r, 1]] = F.counts[r]
-			}
+	C = J(Ns, Dp, 0)
+	Gram = J(Dp, Dp, 0)
+	for (a = 1; a <= rows(others); a++) {
+		m = others[a]
+		C[|1, ooff[a] + 1 \ Ns, ooff[a + 1]|] = cre_xtab(js, Ns, L[., m], Nm[m])
+		for (b = 1; b <= rows(others); b++) {
+			l = others[b]
+			Gram[|ooff[a] + 1, ooff[b] + 1 \ ooff[a + 1], ooff[b + 1]|] = cre_xtab(L[., m], Nm[m], L[., l], Nm[l])
 		}
 	}
-	EV = J(0, 0, .)
-	ev = J(1, 0, .)
-	symeigensystem(Gm, EV, ev)
-	tol = D * epsilon(1) * max(ev)
-	keep = selectindex(ev :> tol)'
-	d = rows(keep)
-	Gp = EV[., keep] * diag(1 :/ ev[keep]') * EV[., keep]'
+	CT = C :/ T
+	p = 0
+	G = J(Dp, Dp, 0)
+	if (Dp > 0) {
+		WtW = Gram - cross(C, CT)
+		EV = J(0, 0, .)
+		ev = J(1, 0, .)
+		symeigensystem(WtW, EV, ev)
+		tol = Dp * epsilon(1) * max(ev)
+		keep = selectindex(ev :> tol)'
+		p = rows(keep)
+		G = EV[., keep] * diag(1 :/ ev[keep]') * EV[., keep]'
+	}
+	d = Ns + p
 
 	// ---- re-apply Q_[Delta] to Xt (kills the absorber's drift) ------------
-	DtX = J(D, K, 0)
-	for (m = 1; m <= M; m++) {
-		DtX[|off[m] + 1, 1 \ off[m + 1], K|] = cre_gsum(Xt, L[., m], Nm[m])
-	}
-	Cfit = Gp * DtX
-	for (m = 1; m <= M; m++) {
-		Xt = Xt - Cfit[L[., m] :+ off[m], .]
-	}
+	Xt = Xt - cre_Pms(Xt, js, T)
+	if (Dp > 0) Xt = Xt - cre_Wapply(G * cre_Wt(Xt, L, others, Nm, ooff, js, T), L, others, ooff, js, T)
 	bread = invsym(cross(Xt, Xt))
 	trR = n - d - K
 
 	// ---- diag(P_[Delta]) and diag(R) ------------------------------------
-	Pdiag = J(n, 1, 0)
-	for (m = 1; m <= M; m++) {
-		for (l = 1; l <= M; l++) {
-			Bml = vec(Gp[|off[m] + 1, off[l] + 1 \ off[m + 1], off[l + 1]|])
-			Pdiag = Pdiag + Bml[(L[., l] :- 1) :* Nm[m] :+ L[., m]]
+	Pdiag = 1 :/ T[js]
+	if (Dp > 0) {
+		GR = G * CT'
+		q = colsum(CT' :* GR)'
+		vG = vec(G)
+		vGR = vec(GR)
+		for (a = 1; a <= rows(others); a++) {
+			ia = ooff[a] :+ L[., others[a]]
+			Pdiag = Pdiag - 2 * vGR[(js :- 1) :* Dp :+ ia]
+			for (b = 1; b <= rows(others); b++) {
+				ib = ooff[b] :+ L[., others[b]]
+				Pdiag = Pdiag + vG[(ib :- 1) :* Dp :+ ia]
+			}
 		}
+		Pdiag = Pdiag + q[js]
 	}
 	Ldiag = rowsum((Xt * bread) :* Xt)
 	Rdiag = (1 :- Pdiag) - Ldiag     // parenthesised: Mata binds :- below -
@@ -161,9 +256,9 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 
 	ninert = 0
 	if (kind == "lc") {
-		// the leverage correction.  R_oo = 0 with xt_o = 0 is a
-		// singleton-type observation contributing exactly zero (dropped as an
-		// identity); R_oo = 0 with xt_o != 0 makes M_LC diverge and is an error.
+		// the leverage correction.  R_oo = 0 with xt_o = 0 is a singleton-type
+		// observation contributing exactly zero (dropped as an identity);
+		// R_oo = 0 with xt_o != 0 makes M_LC diverge and is an error.
 		inert = (Rdiag :<= 1e-10) :& (rowsum(Xt :* Xt) :<= 1e-16 * mean(rowsum(Xt :* Xt)))
 		if (any((Rdiag :<= 1e-10) :& !inert)) {
 			errprintf("fevce(lc): %g observation(s) have R_oo <= 1e-10 with nonzero within variation; the leverage correction divides by R_oo and is not defined for them\n", sum((Rdiag :<= 1e-10) :& !inert))
@@ -177,10 +272,6 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	}
 	else {
 		// ---- the plug-in: the moment system ---------------------------------
-		if (n * (D + K) > memcap) {
-			errprintf("fevce(plugin): the grouped pass needs up to n x (D + K) = %g doubles, above memcap(%g)\n", n * (D + K), memcap)
-			exit(498)
-		}
 		// levels: every nonempty subset of 1..M, ordered by (size, lex)
 		nlev = 2^M - 1
 		mask = J(nlev, M, 0)
@@ -191,7 +282,6 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 				if (mod(floor(s / 2^(m - 1)), 2) == 1) mask[s, m] = 1
 			}
 			lvsize[s] = sum(mask[s, .])
-			// lexicographic key of the dims, base M+1, leading dim most significant
 			e = selectindex(mask[s, .])
 			for (k = 1; k <= cols(e); k++) ordr[s] = ordr[s] + e[k] * (M + 1)^(M - k)
 		}
@@ -201,38 +291,47 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		plv = J(1, nlev, NULL)
 		pcode = J(1, nlev, NULL)
 		pcnt = J(1, nlev, NULL)
-		pA = J(1, nlev, NULL)
-		pGam = J(1, nlev, NULL)
+		pAW = J(1, nlev, NULL)
+		pAX = J(1, nlev, NULL)
 		CL = J(nlev, 1, 0)
 		Sig = J(nlev, 1, 0)
+		Pm = J(nlev, 1, 0)
 		cmax = (M >= 2 ? 0 : 1)
-		S = blockdiag(Gp, bread)
+		step = max((1, floor(memcap / max((Dp, 1)))))
 		for (i = 1; i <= nlev; i++) {
 			e = selectindex(mask[i, .])
 			plv[i] = &(e :+ 0)
 			F = _factor(L[., e])
-			pcode[i] = &(F.levels :+ 0)
-			pcnt[i] = &(F.counts :+ 0)
+			code = F.levels
 			cnt = F.counts
+			pcode[i] = &(code :+ 0)
+			pcnt[i] = &(cnt :+ 0)
 			CL[i] = sum(cnt :^ 2 - cnt)
 			if (lvsize[i] >= 2) cmax = max((cmax, max(cnt)))
+			if (CL[i] == 0) continue          // all cells singletons: contributes nothing
 			nT = F.num_levels
-			// A_L = Delta_L' Z = [cell x category counts, cell sums of Xt]
-			A_L = J(nT, D + K, 0)
-			code = F.levels
-			for (m = 1; m <= M; m++) {
-				F = _factor((code, L[., m]))
-				keys = J(F.num_levels, 2, .)
-				keys[F.levels, .] = (code, L[., m])
-				for (r = 1; r <= F.num_levels; r++) {
-					A_L[keys[r, 1], off[m] + keys[r, 2]] = F.counts[r]
+			if (nT * max((Dp, 1)) > memcap) {
+				errprintf("fevce(plugin): a level with %g cells needs a %g x %g array, above memcap(%g) doubles\n", nT, nT, Dp, memcap)
+				exit(498)
+			}
+			// A_L^W = Delta_L' W = C_{L,-m*} - C_{L,m*} diag(1/T) C, |T_L| x D'
+			AW = J(nT, Dp, 0)
+			for (a = 1; a <= rows(others); a++) {
+				m = others[a]
+				AW[|1, ooff[a] + 1 \ nT, ooff[a + 1]|] = cre_xtab(code, nT, L[., m], Nm[m])
+			}
+			cre_joint(code, js, tu, ju, nuu)
+			Pm[i] = sum(nuu :^ 2 :/ T[ju])
+			if (Dp > 0) {
+				for (b = 1; b <= rows(tu); b = b + step) {
+					dd = min((b + step - 1, rows(tu)))
+					AW = AW - cre_gsum(CT[ju[|b \ dd|], .] :* nuu[|b \ dd|], tu[|b \ dd|], nT)
 				}
 			}
-			if (K > 0) A_L[|1, D + 1 \ nT, D + K|] = cre_gsum(Xt, code, nT)
-			pA[i] = &(A_L :+ 0)
-			Gam = cross(A_L, A_L)
-			pGam[i] = &(Gam :+ 0)
-			Sig[i] = n - sum(S :* Gam')
+			AX = cre_gsum(Xt, code, nT)
+			pAW[i] = &(AW :+ 0)
+			pAX[i] = &(AX :+ 0)
+			Sig[i] = n - Pm[i] - sum(AW :* (AW * G)) - sum(AX :* (AX * bread))
 		}
 		// Moebius: |P_F| and the exact-class sums from the superset aggregates
 		PF = J(nlev, 1, 0)
@@ -255,40 +354,41 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		nFc = rows(Frow)
 		nE = rows(Ecol)
 		minPF = (nFc > 0 ? min(PF[Frow]) : .)
-		// T_L(R Sh^off_e R) for every active e and every level L, then Moebius
+		// T_L(R Sh^off_e R) for every active e and every level L with C_L > 0
 		TRSR = J(nlev, nE, 0)
 		for (a = 1; a <= nE; a++) {
-			e = *plv[Ecol[a]]
 			for (i = 1; i <= nlev; i++) {
 				if (CL[i] == 0) continue
-				fl = *plv[i]
-				// ||Delta_e' R Delta_F||_F^2 without any n x n or |T_e| x |T_F| object
-				key = J(1, 0, .)
-				for (m = 1; m <= M; m++) {
-					if (mask[Ecol[a], m] == 1 | mask[i, m] == 1) key = key, m
+				// ||Delta_e' R Delta_F||_F^2 = ||N - M||_F^2, N the joint counts of e u F
+				Te = rows(*pcnt[Ecol[a]])
+				TF = rows(*pcnt[i])
+				if (Te * TF > memcap) {
+					errprintf("fevce(plugin): the cross term of two levels with %g and %g cells needs a %g x %g array, above memcap(%g) doubles\n", Te, TF, Te, TF, memcap)
+					exit(498)
 				}
-				F = _factor(L[., key])
-				codeJ = F.levels
-				cntJ = F.counts
-				nT = F.num_levels
-				rev = (n..1)'
-				first = J(nT, 1, .)
-				first[codeJ[rev]] = rev
-				su = (*pcode[i])[first]
-				tu = (*pcode[Ecol[a]])[first]
-				n2 = sum(cntJ :^ 2)
-				Ae = *pA[Ecol[a]]
-				BF = (*pA[i]) * S
-				crossv = 0
-				step = max((1, floor(4e6 / (D + K))))
-				for (b = 1; b <= nT; b = b + step) {
-					dd = min((b + step - 1, nT))
-					crossv = crossv + sum(cntJ[|b \ dd|] :* rowsum(Ae[tu[|b \ dd|], .] :* BF[su[|b \ dd|], .]))
+				Mx = ((*pAX[Ecol[a]]) * bread) * (*pAX[i])'
+				if (Dp > 0) Mx = Mx + ((*pAW[Ecol[a]]) * G) * (*pAW[i])'
+				// plus C_{e,m*} diag(1/T) C_{m*,F}: one outer product per m* category
+				cre_joint(*pcode[Ecol[a]], js, t1, j1, n1)
+				cre_joint(*pcode[i], js, s2, j2, n2)
+				info1 = panelsetup(j1, 1)
+				info2 = panelsetup(j2, 1)
+				sstart = J(Ns, 1, 0)
+				send = J(Ns, 1, 0)
+				sstart[j2[info2[., 1]]] = info2[., 1]
+				send[j2[info2[., 1]]] = info2[., 2]
+				for (k = 1; k <= rows(info1); k++) {
+					jj = j1[info1[k, 1]]
+					if (sstart[jj] == 0) continue
+					ta = (info1[k, 1]::info1[k, 2])
+					sb = (sstart[jj]::send[jj])
+					Mx[t1[ta], s2[sb]] = Mx[t1[ta], s2[sb]] + (n1[ta] / T[jj]) * n2[sb]'
 				}
-				SGe = S * (*pGam[Ecol[a]])
-				SGF = S * (*pGam[i])
-				quadv = sum(SGF :* SGe')
-				TRSR[i, a] = (n2 - 2 * crossv + quadv) - Sig[i] - Sig[Ecol[a]] + trR
+				cre_joint(*pcode[Ecol[a]], *pcode[i], ts, ss, ns)
+				MM = sum(Mx :* Mx)
+				NM = sum(ns :* vec(Mx)[(ss :- 1) :* Te :+ ts])
+				NN = sum(ns :^ 2)
+				TRSR[i, a] = (MM - 2 * NM + NN) - Sig[i] - Sig[Ecol[a]] + trR
 			}
 		}
 		exRSR = J(nlev, nE, 0)
@@ -348,8 +448,8 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		meat = coef * cross(Xt, Xt)
 		for (a = 1; a <= nE; a++) {
 			if (sig2p[a] == 0) continue
-			W = (*pA[Ecol[a]])[|1, D + 1 \ ., D + K|]
-			meat = meat + sig2p[a] * cross(W, W)
+			Bg = *pAX[Ecol[a]]
+			meat = meat + sig2p[a] * cross(Bg, Bg)
 		}
 		meat = (meat + meat') / 2
 		rho = cmax * sqrt(Gmax * cmax / min((n, (minPF < . ? minPF : n))))
@@ -379,5 +479,7 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	st_numscalar("__cre_V_pd", min(symeigenvalues(V)) > 0)
 	st_numscalar("__cre_Rmin", Rmin)
 	st_numscalar("__cre_n_inert", ninert)
+	st_numscalar("__cre_Dred", Dp)
+	st_numscalar("__cre_mstar", ms)
 }
 end

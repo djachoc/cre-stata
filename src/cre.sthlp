@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.1.0 07sep2026}{...}
+{* *! version 0.2.0 07sep2026}{...}
 {cmd:help cre}
 {hline}
 
@@ -46,7 +46,7 @@
 
 {syntab:Diagnostics and computation}
 {synopt:{opt nodiag:nostics}}do not report the support diagnostics and the Mundlak gap{p_end}
-{synopt:{opt dcap(#)}}largest total number of fixed-effect levels for which the rank of the design and the exact projector are computed; default is 3000{p_end}
+{synopt:{opt dcap(#)}}largest number of fixed-effect levels outside the largest dimension for which the rank of the design and the exact projector are computed; default is 10000{p_end}
 {synopt:{opt memcap(#)}}memory limit, in doubles, of the plug-in estimator's grouped pass; default is 5e7{p_end}
 {synoptline}
 {p2colreset}{...}
@@ -153,7 +153,8 @@ synonym.
 {opt lc} is the leverage-corrected robust estimator, which divides each squared residual by the
 diagonal of the residual-maker matrix. It is exactly unbiased when the disturbances are
 independent with a constant variance. It requires the exact projector, so it is available only
-when the total number of fixed-effect levels is at most {opt dcap()}. Observations without
+when the number of fixed-effect levels outside the largest dimension is at most {opt dcap()};
+the largest dimension itself can be of any size. Observations without
 within variation, such as singletons, contribute nothing and are dropped; their number is
 reported.
 
@@ -226,11 +227,13 @@ projection of the regressors that dimension-wise means cannot span, which is zer
 those means would reproduce the fixed-effects estimator. The gap is not computed with weights.
 
 {phang}
-{opt dcap(#)} sets the largest total number of fixed-effect levels for which the rank of the
-design is computed exactly, from the Gram matrix of the dummies; above it the rank is taken from
-{helpb reghdfe}, which equals the exact rank when singletons are kept and can overstate it when
-three or more dimensions are absorbed. {opt fevce(lc)} and {opt fevce(plugin)} need the exact
-projector and are not available above {opt dcap()}. The default is 3000.
+{opt dcap(#)} sets the largest number of fixed-effect levels outside the largest dimension for
+which the rank of the design is computed exactly and the exact projector is formed. The largest
+dimension is absorbed exactly at no cost, so the only dense object is a square matrix of that
+order; a panel with 100,000 firms and 200 industry-years has 200 such levels. Above the cap the
+rank is taken from {helpb reghdfe}, which equals the exact rank when singletons are kept and can
+overstate it when three or more dimensions are absorbed, and {opt fevce(lc)} and
+{opt fevce(plugin)} are not available. The default is 10000, a few seconds of computation.
 
 {phang}
 {opt memcap(#)} sets, in doubles, the memory allowed to the one dense object of
@@ -310,9 +313,9 @@ and the estimator reduces to the homoskedastic one; {opt union} or {opt cluster(
 used instead when shared components are suspected.
 
 {pstd}
-{it:Note: the rank of the fixed-effect design was taken from reghdfe.} The total number of levels
-exceeds {opt dcap()}, so the rank was not computed exactly; with three or more dimensions it can
-be overstated. Raise {opt dcap()} to compute it exactly.
+{it:Note: the rank of the fixed-effect design was taken from reghdfe.} The number of levels
+outside the largest dimension exceeds {opt dcap()}, so the rank was not computed exactly; with
+three or more dimensions it can be overstated. Raise {opt dcap()} to compute it exactly.
 
 {marker r4}{...}
 {title:Computation}
@@ -321,8 +324,9 @@ be overstated. Raise {opt dcap()} to compute it exactly.
 {cmd:cre} requires {helpb reghdfe} (Correia 2016) and {helpb ftools}, and compiles the latter's
 Mata library on first use if needed. No object of the size of the sample squared is ever formed:
 the controls come from {helpb reghdfe}, the cell sums from grouped passes over the data, and the
-rank of the design from the Gram matrix of the dummies when the total number of levels is at
-most {opt dcap()}. The estimators, the diagnostics and the test were validated against an
+rank of the design and the exact projector from a Gram matrix of the levels outside the largest
+dimension, which is absorbed exactly, when those levels number at most {opt dcap()}. The
+estimators, the diagnostics and the test were validated against an
 independent implementation in Python on the same data, to machine precision on the point
 estimates and to a relative 1e-9 on every variance matrix.
 
@@ -344,7 +348,7 @@ the created controls still in the data, so it is not available after {opt drop}.
 {synoptset 26 tabbed}{...}
 {p2col 5 26 30 2: Macros}{p_end}
 {synopt:{cmd:e(m_list)}}names of the created controls{p_end}
-{synopt:{cmd:e(cre_version)}}{cmd:0.1.0}{p_end}
+{synopt:{cmd:e(cre_version)}}{cmd:0.2.0}{p_end}
 {synopt:{cmd:e(cre_branch)}}{cmd:compact} or {cmd:components}{p_end}
 {synopt:{cmd:e(cre_fe)}}absorbed dimensions{p_end}
 
