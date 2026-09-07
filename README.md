@@ -126,7 +126,7 @@ The logs were produced by the do-files as they stand, with `src/` on the adopath
 | `fevce(cluster(varlist))` | clustered on overlapping dimensions of your choice, absorbed or not; clustering on the unit allows serial dependence within it |
 | `fevce(lc)`, `fevce(plugin)` | the leverage correction and the plug-in over the variance components; the largest dimension is absorbed exactly, so only the levels outside it count against `dcap()` |
 | `pitest` | the Mundlak test, with `pirest()` and `pinull()` for a restricted hypothesis |
-| `nodiagnostics` | skip the support diagnostics and the Mundlak gap |
+| `nodiagnostics` | skip the support diagnostics and the Mundlak gap, overall and by regressor (`e(cre_gap_k)`) |
 
 `fevce()` and `pitest` require the wrapped command to be `regress`. Everything else works with
 any estimation command. See `help cre` for the details and for what each note
@@ -161,11 +161,10 @@ provenance and the attribution.
 
 ## Authors
 
-[Fernando Rios-Avila](https://friosavila.github.io/) (Universidad Privada Boliviana and London
-School of Economics and Political Science), [Gustavo Canavire Bacarreza](https://gcanavire.com/)
-(World Bank and Universidad Privada Boliviana), [Benjamin O. Harrison](https://benhars.com/)
-(Emory University) and [David T. Jacho-Chavez](https://www.davidjachochavez.org) (Emory
-University). The original `cre` prefix command is by Fernando Rios-Avila.
+- [Fernando Rios-Avila](https://friosavila.github.io/), Universidad Privada Boliviana and London School of Economics and Political Science
+- [Gustavo Canavire Bacarreza](https://gcanavire.com/), World Bank and Universidad Privada Boliviana
+- [Benjamin O. Harrison](https://benhars.com/), Emory University
+- [David T. Jacho-Chavez](https://www.davidjachochavez.org), Emory University
 
 `cre` relies on Sergio Correia's [`reghdfe`](https://github.com/sergiocorreia/reghdfe) and
 [`ftools`](https://github.com/sergiocorreia/ftools). The orange-juice data originate in the

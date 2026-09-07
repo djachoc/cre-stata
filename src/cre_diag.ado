@@ -12,7 +12,9 @@
 * condition under which dimension-wise means reproduce the fixed-effects
 * estimator), the largest joint cell c_max, the largest pairwise cell c2_max,
 * the largest category G_max, and the normalized Mundlak gap g_X, the share of
-* the joint projection of the regressors that dimension-wise means cannot span.
+* the joint projection of the regressors that dimension-wise means cannot span,
+* with, by regressor, the gap, the within variation relative to the projection
+* and the gap relative to that within variation.
 * No n x n object is formed: cells come from ftools factors and the rank from
 * the (sum_m N_m)-square Gram matrix Delta'Delta when that is at most dcap
 * levels, otherwise from reghdfe's e(df_a), which equals the rank when
@@ -27,10 +29,17 @@ program cre_diag, rclass
 		return scalar `s' = scalar(__cre_`s')
 		scalar drop __cre_`s'
 	}
-	tempname Nfe
+	tempname Nfe gapk
 	matrix `Nfe' = __cre_Nfe
 	matrix drop __cre_Nfe
 	return matrix N_fe = `Nfe'
+	matrix `gapk' = __cre_gapk
+	matrix drop __cre_gapk
+	if "`px'"!="" {
+		matrix colnames `gapk' = `xf'
+		matrix rownames `gapk' = gap within gap_within
+	}
+	return matrix gap_k = `gapk'
 end
 
 mata:
@@ -44,8 +53,8 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	real scalar n, M, m, l, K, D, d, connected, prop, propdev, cmax, c2max
 	real scalar Gmax, Nast, gX, s, bit, r, dev, tol, exact, c, ms, Dp, a, b
 	real colvector Nm, off, ev, others, ooff, Tm
-	real rowvector e
-	real matrix L, T, A, X, PX, C, B, G, keys, E, S, Mn
+	real rowvector e, gk, wk, gw
+	real matrix L, T, A, X, PX, C, B, G, keys, E, S, Mn, QX, gapk
 
 	fev = tokens(fes)
 	M = cols(fev)
@@ -147,6 +156,7 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	// the normalized Mundlak gap: the part of P_[Delta] X outside the span of
 	// the dimension-wise means and the constant, relative to P_[Delta] X
 	gX = .
+	gapk = J(3, 1, .)
 	if (pxs != "" & xfs != "") {
 		X = st_data(., tokens(xfs), touse)
 		PX = st_data(., tokens(pxs), touse)
@@ -162,6 +172,16 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		B = invsym(cross(C, C)) * cross(C, PX)
 		G = PX - C * B
 		gX = sqrt(sum(G :* G)) / sqrt(sum(PX :* PX))
+		// by regressor: the gap relative to P_[Delta] x_k; the within variation
+		// relative to the projection, ||Q x_k|| / ||P x_k||, the part of the
+		// regressor that the fixed effects leave; and the gap relative to that
+		// within variation, ||G_k|| / ||Q x_k||, which is what governs how far
+		// the dimension-wise estimates are from the fixed-effects ones
+		QX = X - PX
+		gk = sqrt(colsum(G :* G)) :/ sqrt(colsum(PX :* PX))
+		wk = sqrt(colsum(QX :* QX)) :/ sqrt(colsum(PX :* PX))
+		gw = sqrt(colsum(G :* G)) :/ sqrt(colsum(QX :* QX))
+		gapk = gk \ wk \ gw
 	}
 
 	st_numscalar("__cre_n", n)
@@ -178,6 +198,7 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	st_numscalar("__cre_N_ast", Nast)
 	st_numscalar("__cre_g_X", gX)
 	st_matrix("__cre_Nfe", Nm')
+	st_matrix("__cre_gapk", gapk)
 }
 
 // dense na x nb table of counts of the pair (a, b), a in 1..na, b in 1..nb
