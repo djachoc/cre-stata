@@ -1,0 +1,22 @@
+v 3
+d cre. Correlated random effects by joint projection, with support diagnostics and inference for multiway panels
+d
+d cre is a prefix command that builds Mundlak controls spanning the joint projection of the
+d regressors onto the fixed-effect span, for any number of dimensions and any support, and
+d wraps any estimation command. For a wrapped regress it provides the variance estimators for
+d the joint-projection slope and the test of no correlated effects of Harrison, Canavire
+d Bacarreza, Jacho-Chavez and Rios-Avila (2026), together with the support diagnostics their
+d theory depends on.
+d
+d Requires: reghdfe, ftools
+d
+d Authors: Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
+d Distribution-Date: 20260907
+d
+f cre.ado
+f cre_diag.ado
+f cre_vce.ado
+f cre_exact.ado
+f cre_pitest.ado
+f cre_p.ado
+f cre.sthlp

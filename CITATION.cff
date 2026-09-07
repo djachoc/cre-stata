@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+message: "If you use cre, please cite the Stata Journal manuscript and the paper whose methods it implements."
+title: "cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels"
+version: 2.0.1
+date-released: 2026-09-07
+license: MIT
+repository-code: "https://github.com/djachoc/cre-stata"
+authors:
+  - family-names: Rios-Avila
+    given-names: Fernando
+    affiliation: "Universidad Privada Boliviana and London School of Economics and Political Science"
+  - family-names: Canavire Bacarreza
+    given-names: Gustavo
+    affiliation: "World Bank and Universidad Privada Boliviana"
+  - family-names: Harrison
+    given-names: Benjamin O.
+    affiliation: "Emory University"
+  - family-names: Jacho-Chávez
+    given-names: David T.
+    affiliation: "Emory University"
+preferred-citation:
+  type: unpublished
+  title: "cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels"
+  year: 2026
+  authors:
+    - family-names: Rios-Avila
+      given-names: Fernando
+    - family-names: Canavire Bacarreza
+      given-names: Gustavo
+    - family-names: Harrison
+      given-names: Benjamin O.
+    - family-names: Jacho-Chávez
+      given-names: David T.
+  notes: "Unpublished manuscript"
+references:
+  - type: unpublished
+    title: "Mundlak regressions in multiway panels with irregular support: Failure, repair, and inference"
+    year: 2026
+    authors:
+      - family-names: Harrison
+        given-names: Benjamin O.
+      - family-names: Canavire Bacarreza
+        given-names: Gustavo
+      - family-names: Jacho-Chávez
+        given-names: David T.
+      - family-names: Rios-Avila
+        given-names: Fernando
+    notes: "Unpublished manuscript"

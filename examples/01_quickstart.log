@@ -1,0 +1,260 @@
+
+. * 01_quickstart.do -- cre on Stata's auto data: the joint-projection regression, three
+. * kinds of standard errors, and the Mundlak test.  Runs in a few seconds.
+. clear all
+
+. sysuse auto, clear
+(1978 automobile data)
+
+. replace headroom = round(headroom)
+(37 real changes made)
+
+. replace price = price / 1000
+variable price was int now float
+(74 real changes made)
+
+. 
+. * 1. Correlated random-effects regression with two absorbed dimensions.  The coefficients on
+. *    price and foreign equal those of  reghdfe mpg price foreign, abs(headroom trunk)
+. cre, jm abs(headroom trunk): regress mpg price foreign
+
+      Source |       SS           df       MS      Number of obs   =        74
+-------------+----------------------------------   F(4, 69)        =     15.98
+       Model |  1175.11446         4  293.778615   Prob > F        =    0.0000
+    Residual |    1268.345        69  18.3818116   R-squared       =    0.4809
+-------------+----------------------------------   Adj R-squared   =    0.4508
+       Total |  2443.45946        73  33.4720474   Root MSE        =    4.2874
+
+------------------------------------------------------------------------------
+         mpg | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       price |  -.5499939    .214027    -2.57   0.012    -.9769661   -.1230218
+     foreign |   3.791456   1.508535     2.51   0.014     .7820111    6.800902
+     m_price |  -1.118169   .3534819    -3.16   0.002    -1.823346    -.412992
+   m_foreign |   3.161882   2.186196     1.45   0.153    -1.199459    7.523223
+       _cons |   31.55845   2.467079    12.79   0.000     26.63677    36.48014
+------------------------------------------------------------------------------
+
+Support diagnostics (compact controls)
+-------------------------------------------------------------------------------
+  n = 74   M = 2   N_m = 4 18   N_* = 4
+  d_[Delta] = 21 (exact)   d/n = 0.2838   connected: yes
+  proportional cell frequencies: no  (max deviation 5.3)
+  c_max = 8   c2_max = 8   G_max = 27   Mundlak gap g_X = 0.0764
+-------------------------------------------------------------------------------
+Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
+      any support.
+Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each
+      dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint
+      projection of the regressors that they cannot span.
+
+. 
+. * 2. The same coefficients with standard errors that allow for components shared within the
+. *    absorbed cells (fevce(union)), then heteroskedasticity-robust ones (fevce(white))
+. cre, jm fevce(union) abs(headroom trunk): regress mpg price foreign
+
+Correlated random-effects regression         Number of obs       =           74
+Slopes: multiway fixed-effects estimates     Rank of FE design   =           21
+Absorbed dimensions: headroom trunk
+Std. err.: multiway clustered on the absorbed dimensions; allows dependence between observations
+           sharing any absorbed category; no small-sample adjustment; z-based inference
+Largest cluster = 27   max. degree of sharing = 36   Gbar^3 d/n = 5586
+Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 5586 > 1). The clustered
+      standard errors are asymptotically valid when this quantity is small. That is a sufficient
+      condition, not a necessary one, so its failure does not show the standard errors to be
+      invalid; it means that their validity is not verified by this check.
+------------------------------------------------------------------------------
+             |              Multiway
+         mpg | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       price |  -.5499939   .1657611    -3.32   0.001    -.8748796   -.2251083
+     foreign |   3.791456   .5365589     7.07   0.000      2.73982    4.843092
+------------------------------------------------------------------------------
+Note: the clustered variance was not positive semidefinite (smallest eigenvalue of the meat
+      -16.2); its negative eigenvalues were set to zero. This can happen in finite samples when
+      clusters overlap and becomes rare as the sample grows.
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+Support diagnostics (compact controls)
+-------------------------------------------------------------------------------
+  n = 74   M = 2   N_m = 4 18   N_* = 4
+  d_[Delta] = 21 (exact)   d/n = 0.2838   connected: yes
+  proportional cell frequencies: no  (max deviation 5.3)
+  c_max = 8   c2_max = 8   G_max = 27   Mundlak gap g_X = 0.0764
+-------------------------------------------------------------------------------
+Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
+      any support.
+Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each
+      dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint
+      projection of the regressors that they cannot span.
+
+. cre, jm fevce(white) abs(headroom trunk): regress mpg price foreign
+
+Correlated random-effects regression         Number of obs       =           74
+Slopes: multiway fixed-effects estimates     Rank of FE design   =           21
+Absorbed dimensions: headroom trunk
+Std. err.: heteroskedasticity-robust; valid when the disturbances are independent across
+           observations; no small-sample adjustment; z-based inference
+------------------------------------------------------------------------------
+             |               Robust
+         mpg | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       price |  -.5499939   .1779172    -3.09   0.002    -.8987053   -.2012826
+     foreign |   3.791456   1.794239     2.11   0.035     .2748127      7.3081
+------------------------------------------------------------------------------
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+Support diagnostics (compact controls)
+-------------------------------------------------------------------------------
+  n = 74   M = 2   N_m = 4 18   N_* = 4
+  d_[Delta] = 21 (exact)   d/n = 0.2838   connected: yes
+  proportional cell frequencies: no  (max deviation 5.3)
+  c_max = 8   c2_max = 8   G_max = 27   Mundlak gap g_X = 0.0764
+-------------------------------------------------------------------------------
+Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
+      any support.
+Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each
+      dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint
+      projection of the regressors that they cannot span.
+
+. 
+. * 3. Standard errors clustered on a variable that is not absorbed
+. cre, jm fevce(cluster(rep78)) abs(headroom trunk): regress mpg price foreign
+
+Correlated random-effects regression         Number of obs       =           69
+Slopes: multiway fixed-effects estimates     Rank of FE design   =           21
+Absorbed dimensions: headroom trunk
+Std. err.: multiway clustered on rep78; allows arbitrary dependence within a cluster; clusters may
+           overlap; no small-sample adjustment; z-based inference
+Largest cluster = 30   max. degree of sharing = 29   Gbar^3 d/n = 8217
+Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 8217 > 1). The clustered
+      standard errors are asymptotically valid when this quantity is small. That is a sufficient
+      condition, not a necessary one, so its failure does not show the standard errors to be
+      invalid; it means that their validity is not verified by this check.
+------------------------------------------------------------------------------
+             |              Clustered
+         mpg | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       price |  -.5673181   .2579653    -2.20   0.028    -1.072921   -.0617155
+     foreign |   4.198049   1.824442     2.30   0.021     .6222086     7.77389
+------------------------------------------------------------------------------
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+Support diagnostics (compact controls)
+-------------------------------------------------------------------------------
+  n = 69   M = 2   N_m = 4 18   N_* = 4
+  d_[Delta] = 21 (exact)   d/n = 0.3043   connected: yes
+  proportional cell frequencies: no  (max deviation 5.33)
+  c_max = 8   c2_max = 8   G_max = 25   Mundlak gap g_X = 0.0648
+-------------------------------------------------------------------------------
+Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
+      any support.
+Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each
+      dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint
+      projection of the regressors that they cannot span.
+
+. 
+. * 4. The Mundlak test: are the regressors uncorrelated with the fixed effects?
+. cre, jm pitest fevce(union) abs(headroom trunk): regress mpg price foreign
+
+Correlated random-effects regression         Number of obs       =           74
+Slopes: multiway fixed-effects estimates     Rank of FE design   =           21
+Absorbed dimensions: headroom trunk
+Std. err.: multiway clustered on the absorbed dimensions; allows dependence between observations
+           sharing any absorbed category; no small-sample adjustment; z-based inference
+Largest cluster = 27   max. degree of sharing = 36   Gbar^3 d/n = 5586
+Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 5586 > 1). The clustered
+      standard errors are asymptotically valid when this quantity is small. That is a sufficient
+      condition, not a necessary one, so its failure does not show the standard errors to be
+      invalid; it means that their validity is not verified by this check.
+------------------------------------------------------------------------------
+             |              Multiway
+         mpg | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       price |  -.5499939   .1657611    -3.32   0.001    -.8748796   -.2251083
+     foreign |   3.791456   .5365589     7.07   0.000      2.73982    4.843092
+     m_price |  -1.118169   .1318845    -8.48   0.000    -1.376658   -.8596802
+   m_foreign |   3.161882   1.514881     2.09   0.037     .1927705    6.130993
+------------------------------------------------------------------------------
+Note: the clustered variance was not positive semidefinite (smallest eigenvalue of the meat
+      -16.2); its negative eigenvalues were set to zero. This can happen in finite samples when
+      clusters overlap and becomes rare as the sample grows.
+The coefficients on the Mundlak controls (m_price m_foreign) are posted with standard errors
+      clustered on the absorbed dimensions at the rate of the smallest one (N_* = 4); the
+      covariance between the two blocks is set to zero.
+
+Mundlak test (coefficients on the Mundlak controls = 0)
+H0: regressors uncorrelated with the fixed effects (random effects consistent)
+-------------------------------------------------------------------------------
+  clustered on absorbed dimensions   chi2(2) =   165.68   Prob > chi2 = 0.0000
+  for comparison:
+    dimension-wise clustered         chi2(2) =    14.36   Prob > chi2 = 0.0008
+    classical (pooled OLS)           chi2(2) =    11.66   Prob > chi2 = 0.0029
+-------------------------------------------------------------------------------
+Note: the classical statistic uses standard errors of the wrong order and over-rejects,
+      increasingly so as the sample grows; the dimension-wise variance counts shared pairs more
+      than once and under-rejects. The first statistic is the valid one.
+
+Support diagnostics (compact controls)
+-------------------------------------------------------------------------------
+  n = 74   M = 2   N_m = 4 18   N_* = 4
+  d_[Delta] = 21 (exact)   d/n = 0.2838   connected: yes
+  proportional cell frequencies: no  (max deviation 5.3)
+  c_max = 8   c2_max = 8   G_max = 27   Mundlak gap g_X = 0.0764
+-------------------------------------------------------------------------------
+Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
+      any support.
+Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each
+      dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint
+      projection of the regressors that they cannot span.
+
+. 
+. * 5. Nonlinear models, unchanged from earlier versions of cre
+. cre, abs(headroom): logit foreign mpg price
+
+Iteration 0:   log likelihood =  -45.03321  
+Iteration 1:   log likelihood = -32.178664  
+Iteration 2:   log likelihood = -30.914181  
+Iteration 3:   log likelihood = -30.894324  
+Iteration 4:   log likelihood = -30.894304  
+Iteration 5:   log likelihood = -30.894304  
+
+Logistic regression                                     Number of obs =     74
+                                                        LR chi2(4)    =  28.28
+                                                        Prob > chi2   = 0.0000
+Log likelihood = -30.894304                             Pseudo R2     = 0.3140
+
+------------------------------------------------------------------------------
+     foreign | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |   .1756785   .0744136     2.36   0.018     .0298305    .3215266
+       price |   .2315466   .1357839     1.71   0.088    -.0345851    .4976782
+      m1_mpg |   .5800382   .1922972     3.02   0.003     .2031426    .9569338
+    m1_price |    1.30273   .6037227     2.16   0.031     .1194549    2.486004
+       _cons |  -6.554707   2.259613    -2.90   0.004    -10.98347   -2.125947
+------------------------------------------------------------------------------
+
+Support diagnostics (components controls)
+-------------------------------------------------------------------------------
+  n = 74   M = 1   N_m = 4   N_* = 4
+  d_[Delta] = 4 (exact)   d/n = 0.0541   connected: yes
+  proportional cell frequencies: yes  (max deviation 0)
+  c_max = 1   c2_max = 0   G_max = 27   Mundlak gap g_X = 0.0000
+-------------------------------------------------------------------------------
+Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
+      any support.
+Note: the cell frequencies are proportional, so dimension-wise means (egen ..., by() for each
+      dimension) would also reproduce the fixed-effects estimator here.
+
+. 
+end of do-file
+

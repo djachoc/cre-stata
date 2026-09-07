@@ -1,0 +1,443 @@
+
+. * 02_orange_juice.do -- the empirical application of Harrison, Canavire Bacarreza,
+. * Jacho-Chavez and Rios-Avila (2026) on the Dominick's orange-juice panel (data/):
+. * a log-linear demand equation for brand b in store s in week t,
+. *
+. *   log q_bst = b1 lprice + b2 lp_prem + b3 lp_nat + b4 lp_sto + b5 deal + b6 feat
+. *               + a_bs + a_st + a_bt + nu_bst,
+. *
+. * with store x brand, store x week and brand x week effects absorbed.  About 106 thousand
+. * observations and 12 thousand fixed effects; every command below runs in seconds.  The data
+. * are fetched from CRAN by 00_get_data.do the first time (R must be installed).
+. clear all
+
+. capture confirm file "../data/orangeJuice.dta"
+
+. if _rc do "00_get_data.do"
+
+. * 00_get_data.do -- fetch the Dominick's orange-juice panel used in the paper and write
+. * data/orangeJuice.dta and data/orangeJuice_storedemo.dta.  The data are the object
+. * orangeJuice of the R package bayesm (GPL >= 2), so R must be installed and Rscript on the
+. * path; the script data/get_orangejuice.R installs bayesm from CRAN if needed and exports the
+. * two data frames to CSV, and this do-file checks them, labels them and saves them.  Run once.
+. clear all
+
+. local here "`c(pwd)'"
+
+. cd "../data"
+C:\Users\djachoc\Documents\GitHub\cre-stata\data
+
+. shell Rscript get_orangejuice.R
+
+. capture confirm file "orangeJuice_yx.csv"
+
+. if _rc {
+.         di as err "get_orangejuice.R did not produce orangeJuice_yx.csv: is R installed and Rscrip
+> t on the path?"
+.         cd "`here'"
+.         exit 601
+. }
+
+. 
+. * the panel: one row per (store, brand, week)
+. import delimited "orangeJuice_yx.csv", clear case(preserve)
+(encoding automatically selected: ISO-8859-1)
+(19 vars, 106,139 obs)
+
+. assert _N == 106139
+
+. assert constant == 1
+
+. bysort store brand week: assert _N == 1
+
+. quietly tab brand
+
+. assert r(r) == 11
+
+. quietly summarize week
+
+. assert r(min) == 40 & r(max) == 160
+
+. drop constant
+
+. gen double price = .
+(106,139 missing values generated)
+
+. forvalues b = 1/11 {
+  2.         quietly replace price = price`b' if brand == `b'
+  3. }
+
+. gen double lprice = ln(price)
+
+. label var store   "store number (Dominick's)"
+
+. label var brand   "brand, 1-11"
+
+. label var week    "week number, 40-160"
+
+. label var logmove "log of units sold"
+
+. label var deal    "in-store coupon activity (0/1)"
+
+. label var feat    "feature advertisement (share of the week, 0-1)"
+
+. label var profit  "profit"
+
+. label var price   "own shelf price of the brand sold, $ per oz"
+
+. label var lprice  "log own price"
+
+. forvalues b = 1/11 {
+  2.         label var price`b' "shelf price of brand `b', $ per oz"
+  3. }
+
+. label define brand 1 "Tropicana Premium 64 oz" 2 "Tropicana Premium 96 oz" 3 "Florida's Natural 64
+>  oz" ///
+>         4 "Tropicana 64 oz" 5 "Minute Maid 64 oz" 6 "Minute Maid 96 oz" 7 "Citrus Hill 64 oz" ///
+>         8 "Tree Fresh 64 oz" 9 "Florida Gold 64 oz" 10 "Dominicks 64 oz" 11 "Dominicks 128 oz"
+
+. label values brand brand
+
+. label data "bayesm orangeJuice$yx: Dominick's OJ, 83 stores x 11 brands x 121 weeks (Montgomery 19
+> 97)"
+note: label truncated to 80 characters
+
+. compress
+  (0 bytes saved)
+
+. save "orangeJuice.dta", replace
+(file orangeJuice.dta not found)
+file orangeJuice.dta saved
+
+. 
+. * the store demographics
+. import delimited "orangeJuice_storedemo.csv", clear case(preserve)
+(encoding automatically selected: ISO-8859-1)
+(12 vars, 83 obs)
+
+. assert _N == 83
+
+. label var STORE    "store number"
+
+. label var AGE60    "share of population aged 60+"
+
+. label var EDUC     "share college educated"
+
+. label var ETHNIC   "share ethnic"
+
+. label var INCOME   "log median income"
+
+. label var HHLARGE  "share large households"
+
+. label var WORKWOM  "share working women"
+
+. label var HVAL150  "share homes worth > $150k"
+
+. label var SSTRDIST "distance to nearest warehouse store"
+
+. label var SSTRVOL  "ratio of sales to nearest warehouse store"
+
+. label var CPDIST5  "average distance to 5 nearest competitors"
+
+. label var CPWVOL5  "ratio of sales to 5 nearest competitors"
+
+. label data "bayesm orangeJuice$storedemo: store demographics, 83 stores"
+
+. save "orangeJuice_storedemo.dta", replace
+(file orangeJuice_storedemo.dta not found)
+file orangeJuice_storedemo.dta saved
+
+. erase "orangeJuice_yx.csv"
+
+. erase "orangeJuice_storedemo.csv"
+
+. di as txt "written data/orangeJuice.dta (106,139 rows) and data/orangeJuice_storedemo.dta (83 rows
+> )"
+written data/orangeJuice.dta (106,139 rows) and data/orangeJuice_storedemo.dta (83 rows)
+
+. cd "`here'"
+C:\Users\djachoc\Documents\GitHub\cre-stata\examples
+
+. 
+end of do-file
+
+. use "../data/orangeJuice.dta", clear
+(bayesm orangeJuice: Dominick's OJ, 83 stores x 11 brands x 121 weeks (Montgomery)
+
+. 
+. * the three price-quality tiers of Montgomery (1997) and the log mean price of each tier in
+. * the store-week, the brand itself excluded from its own tier
+. gen byte tier = cond(brand <= 3, 1, cond(brand <= 9, 2, 3))
+
+. label define tier 1 "premium" 2 "national" 3 "store brand"
+
+. label values tier tier
+
+. gen double sum_prem = price1 + price2 + price3
+
+. gen double sum_nat  = price4 + price5 + price6 + price7 + price8 + price9
+
+. gen double sum_sto  = price10 + price11
+
+. gen double lp_prem = ln(cond(tier == 1, (sum_prem - price)/2, sum_prem/3))
+
+. gen double lp_nat  = ln(cond(tier == 2, (sum_nat  - price)/5, sum_nat/6))
+
+. gen double lp_sto  = ln(cond(tier == 3, (sum_sto  - price)/1, sum_sto/2))
+
+. label var lp_prem "log mean price, premium tier (own brand excluded)"
+
+. label var lp_nat  "log mean price, national tier (own brand excluded)"
+
+. label var lp_sto  "log mean price, store-brand tier (own brand excluded)"
+
+. egen long sb        = group(store brand)
+
+. egen long storeweek = group(store week)
+
+. egen long bw        = group(brand week)
+
+. label var sb        "store x brand"
+
+. label var storeweek "store x week"
+
+. label var bw        "brand x week"
+
+. 
+. * 1. The correlated random-effects regression and the support diagnostics.  The slopes are
+. *    the three-way fixed-effects estimates; the diagnostics say that the cell frequencies are
+. *    not proportional, so by-hand dimension-wise means would not reproduce them.
+. cre, jm abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
+
+      Source |       SS           df       MS      Number of obs   =   106,139
+-------------+----------------------------------   F(12, 106126)   =   3002.62
+       Model |  35045.8222        12  2920.48519   Prob > F        =    0.0000
+    Residual |  103223.078   106,126  .972646456   R-squared       =    0.2535
+-------------+----------------------------------   Adj R-squared   =    0.2534
+       Total |    138268.9   106,138  1.30272758   Root MSE        =    .98623
+
+------------------------------------------------------------------------------
+     logmove | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .1309379   -11.86   0.000    -1.809785   -1.296512
+     lp_prem |   1.258966   .4437361     2.84   0.005      .389249    2.128682
+      lp_nat |   5.630578   .8438709     6.67   0.000     3.976602    7.284553
+      lp_sto |  -.2410367   .1987835    -1.21   0.225    -.6306497    .1485763
+        deal |   .0278758   .0198048     1.41   0.159    -.0109413    .0666929
+        feat |   .0340359   .3560733     0.10   0.924    -.6638629    .7319348
+    m_lprice |   .5006058   .1316424     3.80   0.000     .2425885    .7586231
+   m_lp_prem |  -1.088989   .4452678    -2.45   0.014    -1.961708   -.2162702
+    m_lp_nat |  -5.565814    .844651    -6.59   0.000    -7.221318   -3.910309
+    m_lp_sto |   .3623024   .2001795     1.81   0.070    -.0300466    .7546515
+      m_deal |   .2693586   .0212995    12.65   0.000      .227612    .3111052
+      m_feat |   .8657607    .356203     2.43   0.015     .1676076    1.563914
+       _cons |   1.141194   1.419238     0.80   0.421    -1.640493    3.922882
+------------------------------------------------------------------------------
+
+Support diagnostics (compact controls)
+-------------------------------------------------------------------------------
+  n = 106139   M = 3   N_m = 913 9649 1331   N_* = 913
+  d_[Delta] = 11689 (from reghdfe e(df_a))   d/n = 0.1101   connected: no
+  proportional cell frequencies: no  (max deviation .993)
+  c_max = 1   c2_max = 1   G_max = 121   Mundlak gap g_X = 0.0111
+-------------------------------------------------------------------------------
+Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
+      any support.
+Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each
+      dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint
+      projection of the regressors that they cannot span.
+Note: the rank of the fixed-effect design was taken from reghdfe, which can overstate it with
+      three or more dimensions; raise dcap() for the exact rank.
+Note: the support graph is not connected; the fixed effects are identified only up to one constant
+      per connected component, which the within transformation handles.
+
+. 
+. * 2. Standard errors allowing for components shared within store-brand, store-week and
+. *    brand-week cells, against heteroskedasticity-robust ones
+. cre, jm fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto dea
+> l feat
+
+Correlated random-effects regression         Number of obs       =      106,139
+Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
+Absorbed dimensions: sb storeweek bw
+Std. err.: multiway clustered on the absorbed dimensions; allows dependence between observations
+           sharing any absorbed category; no small-sample adjustment; z-based inference
+Largest cluster = 121   max. degree of sharing = 212   Gbar^3 d/n = 195101
+Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 195101 > 1). The clustered
+      standard errors are asymptotically valid when this quantity is small. That is a sufficient
+      condition, not a necessary one, so its failure does not show the standard errors to be
+      invalid; it means that their validity is not verified by this check.
+------------------------------------------------------------------------------
+             |              Multiway
+     logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .1639113    -9.48   0.000    -1.874408   -1.231888
+     lp_prem |   1.258966   .4313054     2.92   0.004     .4136227    2.104309
+      lp_nat |   5.630578   .9375099     6.01   0.000     3.793092    7.468063
+      lp_sto |  -.2410367   .1800086    -1.34   0.181    -.5938471    .1117737
+        deal |   .0278758   .0144237     1.93   0.053    -.0003942    .0561459
+        feat |   .0340359   .2176454     0.16   0.876    -.3925413    .4606132
+------------------------------------------------------------------------------
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+. cre, jm fevce(white) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto dea
+> l feat
+
+Correlated random-effects regression         Number of obs       =      106,139
+Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
+Absorbed dimensions: sb storeweek bw
+Std. err.: heteroskedasticity-robust; valid when the disturbances are independent across
+           observations; no small-sample adjustment; z-based inference
+------------------------------------------------------------------------------
+             |               Robust
+     logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .0635908   -24.42   0.000    -1.677784   -1.428512
+     lp_prem |   1.258966   .1670223     7.54   0.000      .931608    1.586323
+      lp_nat |   5.630578   .3387413    16.62   0.000     4.966657    6.294498
+      lp_sto |  -.2410367   .0850096    -2.84   0.005    -.4076525   -.0744209
+        deal |   .0278758   .0070473     3.96   0.000     .0140634    .0416883
+        feat |   .0340359   .1755107     0.19   0.846    -.3099588    .3780306
+------------------------------------------------------------------------------
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+. 
+. * 3. Clustering on store and week, two overlapping dimensions that are not absorbed; this
+. *    allows arbitrary dependence within a store across brands and weeks, serial dependence
+. *    included, and within a week across stores and brands
+. cre, jm fevce(cluster(store week)) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_
+> nat lp_sto deal feat
+
+Correlated random-effects regression         Number of obs       =      106,139
+Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
+Absorbed dimensions: sb storeweek bw
+Std. err.: multiway clustered on store week; allows arbitrary dependence within a cluster;
+           clusters may overlap; no small-sample adjustment; z-based inference
+Largest cluster = 1,331   max. degree of sharing = 2,232   Gbar^3 d/n = 2.60e+08
+Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 2.60e+08 > 1). The
+      clustered standard errors are asymptotically valid when this quantity is small. That is a
+      sufficient condition, not a necessary one, so its failure does not show the standard errors
+      to be invalid; it means that their validity is not verified by this check.
+------------------------------------------------------------------------------
+             |              Clustered
+     logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .1619611    -9.59   0.000    -1.870586    -1.23571
+     lp_prem |   1.258966   .4254369     2.96   0.003     .4251248    2.092807
+      lp_nat |   5.630578   .8744643     6.44   0.000     3.916659    7.344496
+      lp_sto |  -.2410367   .1753419    -1.37   0.169    -.5847006    .1026272
+        deal |   .0278758   .0158097     1.76   0.078    -.0031107    .0588623
+        feat |   .0340359   .2250876     0.15   0.880    -.4071276    .4751995
+------------------------------------------------------------------------------
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+. 
+. * 4. The Mundlak test that the regressors are uncorrelated with the fixed effects, with its
+. *    two comparators
+. cre, jm pitest fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_
+> sto deal feat
+
+Correlated random-effects regression         Number of obs       =      106,139
+Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
+Absorbed dimensions: sb storeweek bw
+Std. err.: multiway clustered on the absorbed dimensions; allows dependence between observations
+           sharing any absorbed category; no small-sample adjustment; z-based inference
+Largest cluster = 121   max. degree of sharing = 212   Gbar^3 d/n = 195101
+Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 195101 > 1). The clustered
+      standard errors are asymptotically valid when this quantity is small. That is a sufficient
+      condition, not a necessary one, so its failure does not show the standard errors to be
+      invalid; it means that their validity is not verified by this check.
+------------------------------------------------------------------------------
+             |              Multiway
+     logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .1639113    -9.48   0.000    -1.874408   -1.231888
+     lp_prem |   1.258966   .4313054     2.92   0.004     .4136227    2.104309
+      lp_nat |   5.630578   .9375099     6.01   0.000     3.793092    7.468063
+      lp_sto |  -.2410367   .1800086    -1.34   0.181    -.5938471    .1117737
+        deal |   .0278758   .0144237     1.93   0.053    -.0003942    .0561459
+        feat |   .0340359   .2176454     0.16   0.876    -.3925413    .4606132
+    m_lprice |   .5006058    .303219     1.65   0.099    -.0936925    1.094904
+   m_lp_prem |  -1.088989   .5955454    -1.83   0.067    -2.256237    .0782585
+    m_lp_nat |  -5.565814    1.42594    -3.90   0.000    -8.360604   -2.771024
+    m_lp_sto |   .3623024   .3830847     0.95   0.344    -.3885298    1.113135
+      m_deal |   .2693586   .0642789     4.19   0.000     .1433743    .3953429
+      m_feat |   .8657607   .3404322     2.54   0.011     .1985258    1.532996
+------------------------------------------------------------------------------
+The coefficients on the Mundlak controls (m_lprice m_lp_prem m_lp_nat m_lp_sto m_deal m_feat) are
+      posted with standard errors clustered on the absorbed dimensions at the rate of the smallest
+      one (N_* = 913); the covariance between the two blocks is set to zero.
+
+Mundlak test (coefficients on the Mundlak controls = 0)
+H0: regressors uncorrelated with the fixed effects (random effects consistent)
+-------------------------------------------------------------------------------
+  clustered on absorbed dimensions   chi2(6) =    77.36   Prob > chi2 = 0.0000
+  for comparison:
+    dimension-wise clustered         chi2(6) =    48.58   Prob > chi2 = 0.0000
+    classical (pooled OLS)           chi2(6) =   510.36   Prob > chi2 = 0.0000
+-------------------------------------------------------------------------------
+Note: the classical statistic uses standard errors of the wrong order and over-rejects,
+      increasingly so as the sample grows; the dimension-wise variance counts shared pairs more
+      than once and under-rejects. The first statistic is the valid one.
+
+. 
+. * 5. Is the correlated-effects coefficient on the own price alone zero?
+. matrix R1 = (1, 0, 0, 0, 0, 0)
+
+. cre, jm pitest pirest(R1) fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem
+>  lp_nat lp_sto deal feat
+
+Correlated random-effects regression         Number of obs       =      106,139
+Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
+Absorbed dimensions: sb storeweek bw
+Std. err.: multiway clustered on the absorbed dimensions; allows dependence between observations
+           sharing any absorbed category; no small-sample adjustment; z-based inference
+Largest cluster = 121   max. degree of sharing = 212   Gbar^3 d/n = 195101
+Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 195101 > 1). The clustered
+      standard errors are asymptotically valid when this quantity is small. That is a sufficient
+      condition, not a necessary one, so its failure does not show the standard errors to be
+      invalid; it means that their validity is not verified by this check.
+------------------------------------------------------------------------------
+             |              Multiway
+     logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .1639113    -9.48   0.000    -1.874408   -1.231888
+     lp_prem |   1.258966   .4313054     2.92   0.004     .4136227    2.104309
+      lp_nat |   5.630578   .9375099     6.01   0.000     3.793092    7.468063
+      lp_sto |  -.2410367   .1800086    -1.34   0.181    -.5938471    .1117737
+        deal |   .0278758   .0144237     1.93   0.053    -.0003942    .0561459
+        feat |   .0340359   .2176454     0.16   0.876    -.3925413    .4606132
+    m_lprice |   .5006058    .303219     1.65   0.099    -.0936925    1.094904
+   m_lp_prem |  -1.088989   .5955454    -1.83   0.067    -2.256237    .0782585
+    m_lp_nat |  -5.565814    1.42594    -3.90   0.000    -8.360604   -2.771024
+    m_lp_sto |   .3623024   .3830847     0.95   0.344    -.3885298    1.113135
+      m_deal |   .2693586   .0642789     4.19   0.000     .1433743    .3953429
+      m_feat |   .8657607   .3404322     2.54   0.011     .1985258    1.532996
+------------------------------------------------------------------------------
+The coefficients on the Mundlak controls (m_lprice m_lp_prem m_lp_nat m_lp_sto m_deal m_feat) are
+      posted with standard errors clustered on the absorbed dimensions at the rate of the smallest
+      one (N_* = 913); the covariance between the two blocks is set to zero.
+
+Test of H0: R pi = r on the Mundlak controls (R in e(cre_pi_R), r in e(cre_pi_r))
+-------------------------------------------------------------------------------
+  clustered on absorbed dimensions   chi2(1) =     2.73   Prob > chi2 = 0.0987
+  for comparison:
+    dimension-wise clustered         chi2(1) =     1.86   Prob > chi2 = 0.1723
+    classical (pooled OLS)           chi2(1) =    14.46   Prob > chi2 = 0.0001
+-------------------------------------------------------------------------------
+Note: the classical statistic uses standard errors of the wrong order and over-rejects,
+      increasingly so as the sample grows; the dimension-wise variance counts shared pairs more
+      than once and under-rejects. The first statistic is the valid one.
+
+. 
+end of do-file
+

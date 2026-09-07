@@ -1,0 +1,8 @@
+*.smcl
+*.gph
+*.tmp
+.DS_Store
+Thumbs.db
+# the orange-juice panel is fetched from CRAN by examples/00_get_data.do, not shipped
+data/*.dta
+data/*.csv
