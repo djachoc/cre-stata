@@ -15,7 +15,7 @@ authors:
   - family-names: Harrison
     given-names: Benjamin O.
     affiliation: "Emory University"
-  - family-names: Jacho-Chávez
+  - family-names: Jacho-Chavez
     given-names: David T.
     affiliation: "Emory University"
 preferred-citation:
@@ -29,7 +29,7 @@ preferred-citation:
       given-names: Gustavo
     - family-names: Harrison
       given-names: Benjamin O.
-    - family-names: Jacho-Chávez
+    - family-names: Jacho-Chavez
       given-names: David T.
   notes: "Unpublished manuscript"
 references:
@@ -41,7 +41,7 @@ references:
         given-names: Benjamin O.
       - family-names: Canavire Bacarreza
         given-names: Gustavo
-      - family-names: Jacho-Chávez
+      - family-names: Jacho-Chavez
         given-names: David T.
       - family-names: Rios-Avila
         given-names: Fernando

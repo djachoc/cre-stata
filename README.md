@@ -20,8 +20,8 @@ dimension, reproduces the fixed-effects estimator only when the cell frequencies
 proportional, which on a two-way panel means a complete panel; `cre` reports how far it falls
 short on your data.
 
-The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chávez and Rios-Avila
-(2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chávez (2026),
+The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
+(2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chavez (2026),
 *cre: Correlated random effects regressions with multiway fixed effects and irregular support*.
 This is the alpha release, version 0.1.0.
 
@@ -145,14 +145,14 @@ provenance and the attribution.
 
 ```bibtex
 @unpublished{RiosAvilaEtAl2026_cre,
-  author = {Rios-Avila, Fernando and Canavire Bacarreza, Gustavo and Harrison, Benjamin O. and Jacho-Ch{\'a}vez, David T.},
+  author = {Rios-Avila, Fernando and Canavire Bacarreza, Gustavo and Harrison, Benjamin O. and Jacho-Chavez, David T.},
   title  = {cre: Correlated random effects regressions with multiway fixed effects and irregular support},
   note   = {Unpublished manuscript},
   year   = {2026}
 }
 
 @unpublished{HarrisonEtAl2026_mundlak,
-  author = {Harrison, Benjamin O. and Canavire Bacarreza, Gustavo and Jacho-Ch{\'a}vez, David T. and Rios-Avila, Fernando},
+  author = {Harrison, Benjamin O. and Canavire Bacarreza, Gustavo and Jacho-Chavez, David T. and Rios-Avila, Fernando},
   title  = {Mundlak regressions in multiway panels with irregular support: Failure, repair, and inference},
   note   = {Unpublished manuscript},
   year   = {2026}
@@ -164,7 +164,7 @@ provenance and the attribution.
 [Fernando Rios-Avila](https://friosavila.github.io/) (Universidad Privada Boliviana and London
 School of Economics and Political Science), [Gustavo Canavire Bacarreza](https://gcanavire.com/)
 (World Bank and Universidad Privada Boliviana), [Benjamin O. Harrison](https://benhars.com/)
-(Emory University) and [David T. Jacho-Chávez](https://www.davidjachochavez.org) (Emory
+(Emory University) and [David T. Jacho-Chavez](https://www.davidjachochavez.org) (Emory
 University). The original `cre` prefix command is by Fernando Rios-Avila.
 
 `cre` relies on Sergio Correia's [`reghdfe`](https://github.com/sergiocorreia/reghdfe) and
