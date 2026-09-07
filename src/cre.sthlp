@@ -452,7 +452,7 @@ Mundlak, Y. 1978. On the pooling of time series and cross section data. {it:Econ
 
 {phang}
 Rios-Avila, F., G. Canavire Bacarreza, B. O. Harrison, and D. T. Jacho-Ch{c a'}vez. 2026.
-cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels.
+cre: Correlated random effects regressions with multiway fixed effects and irregular support.
 Unpublished manuscript.
 
 {phang}

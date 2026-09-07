@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use cre, please cite the command's manuscript and the paper whose methods it implements."
-title: "cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels"
+title: "cre: Correlated random effects regressions with multiway fixed effects and irregular support"
 version: 0.1.0
 date-released: 2026-09-07
 license: MIT
@@ -20,7 +20,7 @@ authors:
     affiliation: "Emory University"
 preferred-citation:
   type: unpublished
-  title: "cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels"
+  title: "cre: Correlated random effects regressions with multiway fixed effects and irregular support"
   year: 2026
   authors:
     - family-names: Rios-Avila

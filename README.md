@@ -22,7 +22,7 @@ short on your data.
 
 The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chávez and Rios-Avila
 (2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chávez (2026),
-*cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels*.
+*cre: Correlated random effects regressions with multiway fixed effects and irregular support*.
 This is the alpha release, version 0.1.0.
 
 ## Installation
@@ -146,7 +146,7 @@ provenance and the attribution.
 ```bibtex
 @unpublished{RiosAvilaEtAl2026_cre,
   author = {Rios-Avila, Fernando and Canavire Bacarreza, Gustavo and Harrison, Benjamin O. and Jacho-Ch{\'a}vez, David T.},
-  title  = {cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels},
+  title  = {cre: Correlated random effects regressions with multiway fixed effects and irregular support},
   note   = {Unpublished manuscript},
   year   = {2026}
 }
