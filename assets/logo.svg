@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="256" viewBox="0 0 760 256" role="img" aria-label="cre: Correlated random effects. Multiway fixed effects. Unbalanced support. Stata">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="256" viewBox="0 0 760 256" role="img" aria-label="cre: Correlated random effects. Multiway fixed effects. Any support. Stata">
   <defs>
     <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0f6e73"/>
@@ -44,9 +44,9 @@
   <rect x="262" y="128" width="456" height="82" rx="10" fill="#eef5f6" stroke="#0f6e73" stroke-width="2"/>
   <text class="mono" x="278" y="158" font-size="16" fill="#083d4a" letter-spacing="0.3">Correlated random effects</text>
   <line x1="262" y1="170" x2="718" y2="170" stroke="#0f6e73" stroke-width="1.5"/>
-  <line x1="505" y1="170" x2="505" y2="210" stroke="#0f6e73" stroke-width="1.5"/>
+  <line x1="530" y1="170" x2="530" y2="210" stroke="#0f6e73" stroke-width="1.5"/>
   <text class="mono" x="278" y="196" font-size="15.5" fill="#0f6e73" letter-spacing="0.3">Multiway fixed effects</text>
-  <text class="mono" x="520" y="196" font-size="15.5" fill="#0f6e73" letter-spacing="0.3">Unbalanced support</text>
+  <text class="mono" x="548" y="196" font-size="15.5" fill="#0f6e73" letter-spacing="0.3">Any support</text>
   <!-- Stata, right-aligned under the box, with the c in the circle -->
   <text class="mono" x="718" y="240" font-size="18" font-weight="700" fill="#5b7a80" text-anchor="end" letter-spacing="0.5">Stata<tspan font-size="13" font-weight="400" dy="-6">&#169;</tspan></text>
 </svg>
