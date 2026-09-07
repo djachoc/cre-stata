@@ -421,7 +421,7 @@ the created controls still in the data, so it is not available after {opt drop}.
 {phang2}{stata "cre, jm pitest pinull(1 0) abs(headroom trunk): regress mpg price foreign"}{p_end}
 {phang2}{stata "predict double xb_pooled, xb"}{p_end}
 
-{pstd}Nonlinear models, unchanged from earlier versions{p_end}
+{pstd}Nonlinear models{p_end}
 {phang2}{stata "cre, abs(headroom): logit foreign mpg price"}{p_end}
 {phang2}{stata "cre, abs(headroom): qreg mpg price foreign, nolog q(10)"}{p_end}
 
