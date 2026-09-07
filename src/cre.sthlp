@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.2.0 07sep2026}{...}
+{* *! version 0.1.0 07sep2026}{...}
 {cmd:help cre}
 {hline}
 
@@ -348,7 +348,7 @@ the created controls still in the data, so it is not available after {opt drop}.
 {synoptset 26 tabbed}{...}
 {p2col 5 26 30 2: Macros}{p_end}
 {synopt:{cmd:e(m_list)}}names of the created controls{p_end}
-{synopt:{cmd:e(cre_version)}}{cmd:0.2.0}{p_end}
+{synopt:{cmd:e(cre_version)}}{cmd:0.1.0}{p_end}
 {synopt:{cmd:e(cre_branch)}}{cmd:compact} or {cmd:components}{p_end}
 {synopt:{cmd:e(cre_fe)}}absorbed dimensions{p_end}
 

@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/lifecycle-alpha-e0891c" alt="lifecycle: alpha">
-  <img src="https://img.shields.io/badge/version-0.2.0-0f6e73" alt="version 0.2.0">
+  <img src="https://img.shields.io/badge/version-0.1.0-0f6e73" alt="version 0.1.0">
   <img src="https://img.shields.io/badge/Stata-14%2B-083d4a" alt="Stata 14+">
   <img src="https://img.shields.io/badge/requires-reghdfe%20%7C%20ftools-5b7a80" alt="requires reghdfe and ftools">
   <img src="https://img.shields.io/badge/license-MIT-f4b942" alt="MIT license">
@@ -23,7 +23,7 @@ short on your data.
 The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chávez and Rios-Avila
 (2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chávez (2026),
 *cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels*.
-This is the alpha release, version 0.2.0.
+This is the alpha release, version 0.1.0.
 
 ## Installation
 
