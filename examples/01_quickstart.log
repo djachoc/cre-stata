@@ -218,43 +218,5 @@ Note: the cell frequencies are not proportional, so dimension-wise means (egen .
       projection of the regressors that they cannot span.
 
 . 
-. * 5. Nonlinear models, unchanged from earlier versions of cre
-. cre, abs(headroom): logit foreign mpg price
-
-Iteration 0:   log likelihood =  -45.03321  
-Iteration 1:   log likelihood = -32.178664  
-Iteration 2:   log likelihood = -30.914181  
-Iteration 3:   log likelihood = -30.894324  
-Iteration 4:   log likelihood = -30.894304  
-Iteration 5:   log likelihood = -30.894304  
-
-Logistic regression                                     Number of obs =     74
-                                                        LR chi2(4)    =  28.28
-                                                        Prob > chi2   = 0.0000
-Log likelihood = -30.894304                             Pseudo R2     = 0.3140
-
-------------------------------------------------------------------------------
-     foreign | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
--------------+----------------------------------------------------------------
-         mpg |   .1756785   .0744136     2.36   0.018     .0298305    .3215266
-       price |   .2315466   .1357839     1.71   0.088    -.0345851    .4976782
-      m1_mpg |   .5800382   .1922972     3.02   0.003     .2031426    .9569338
-    m1_price |    1.30273   .6037227     2.16   0.031     .1194549    2.486004
-       _cons |  -6.554707   2.259613    -2.90   0.004    -10.98347   -2.125947
-------------------------------------------------------------------------------
-
-Support diagnostics (components controls)
--------------------------------------------------------------------------------
-  n = 74   M = 1   N_m = 4   N_* = 4
-  d_[Delta] = 4 (exact)   d/n = 0.0541   connected: yes
-  proportional cell frequencies: yes  (max deviation 0)
-  c_max = 1   c2_max = 0   G_max = 27   Mundlak gap g_X = 0.0000
--------------------------------------------------------------------------------
-Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on
-      any support.
-Note: the cell frequencies are proportional, so dimension-wise means (egen ..., by() for each
-      dimension) would also reproduce the fixed-effects estimator here.
-
-. 
 end of do-file
 

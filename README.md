@@ -109,7 +109,7 @@ random effects by a factor of about seven.
 
 | Example | What it shows | Time |
 |---|---|---|
-| [`01_quickstart.do`](examples/01_quickstart.do) · [log](examples/01_quickstart.log) | the joint-projection regression on `auto`, three kinds of standard errors, the Mundlak test, a logit | seconds |
+| [`01_quickstart.do`](examples/01_quickstart.do) · [log](examples/01_quickstart.log) | the joint-projection regression on `auto`, three kinds of standard errors, the Mundlak test | seconds |
 | [`02_orange_juice.do`](examples/02_orange_juice.do) · [log](examples/02_orange_juice.log) | the paper's application on the Dominick's orange-juice panel: diagnostics, `union`, `white` and `cluster(store week)` standard errors, the Mundlak test and a restricted test | under a minute |
 | [`00_get_data.do`](examples/00_get_data.do) | fetches the orange-juice panel from CRAN and writes `data/orangeJuice.dta`; run by `02_orange_juice.do` the first time (needs R) | a minute |
 
@@ -129,7 +129,7 @@ The logs were produced by the do-files as they stand, with `src/` on the adopath
 | `nodiagnostics` | skip the support diagnostics and the Mundlak gap |
 
 `fevce()` and `pitest` require the wrapped command to be `regress`. Everything else works with
-any estimation command, as in version 1. See `help cre` for the details and for what each note
+any estimation command. See `help cre` for the details and for what each note
 in the output means.
 
 ## The data
