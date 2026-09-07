@@ -56,9 +56,6 @@ cre, jm fevce(cluster(rep78)) abs(headroom trunk): regress mpg price foreign
 
 * the Mundlak test: are the regressors uncorrelated with the fixed effects?
 cre, jm pitest fevce(union) abs(headroom trunk): regress mpg price foreign
-
-* nonlinear models, as in version 1
-cre, abs(headroom): logit foreign mpg price
 ```
 
 `cre` is a prefix command: everything after the colon is an ordinary estimation command, and
