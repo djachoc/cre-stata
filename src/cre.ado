@@ -1,13 +1,13 @@
 *! version 0.1.0  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
-* v0.1.0  (alpha) first public release: the joint-projection controls of Fernando
-*         Rios-Avila's cre prefix command, plus the support diagnostics, the Mundlak gap,
+* v0.1.0  (alpha) first public release: the joint-projection controls of the cre prefix
+*         command, plus the support diagnostics, the Mundlak gap by regressor,
 *         fevce() and pitest of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
 *         (2026); displays, notes and help say what each result means; the exact branch
 *         (fevce(lc), fevce(plugin)) on the reduced core, W'W of order D - N_max and never
 *         the D x D Gram matrix, so that the application's leverage correction takes 13 s
 *         and its plug-in 21 s; dcap() bounds D - N_max, default 10,000
-* Fernando's earlier cre, on SSC:
+* Earlier versions of cre, on SSC:
 * v1.2.1  CRE Improvements on Options Keep drop
 * v1.2.0  CRE Correlated RE model. Allows for two word commands and long vars
 * v1.1.1  CRE Correlated RE model. Allows for Fracreg
@@ -139,8 +139,9 @@ program define cre, properties(prefix)
 			foreach s of local diagnames {
 				local D_`s' = r(`s')
 			}
-			tempname Nfe
+			tempname Nfe gapk
 			matrix `Nfe' = r(N_fe)
+			matrix `gapk' = r(gap_k)
 		}
 		** the slope's variance: fixed-effects residual from one
 		** reghdfe fit, Xt = x - P_[Delta]x from the controls already built
@@ -288,6 +289,7 @@ program define cre, properties(prefix)
 				adde scalar cre_`s' = `D_`s''
 			}
 			adde matrix cre_N_fe = `Nfe'
+			adde matrix cre_gap_k = `gapk'
 		}
 		if "`fevce'"!="" {
 			cre_display_est
@@ -616,6 +618,16 @@ program cre_display
 	   as txt "   G_max = " as res e(cre_G_max) _c
 	if e(cre_g_X)<. {
 		di as txt "   Mundlak gap g_X = " as res %6.4f e(cre_g_X)
+		tempname gk
+		matrix `gk' = e(cre_gap_k)
+		local kn : colnames `gk'
+		local K = colsof(`gk')
+		di as txt "  by regressor:" _col(30) "gap" _col(40) "within / P x" _col(56) "gap / within"
+		forvalues k = 1/`K' {
+			local nm = abbrev("`:word `k' of `kn''", 20)
+			di as txt "    `nm'" _col(26) as res %7.4f `gk'[1,`k'] ///
+			   _col(40) %8.4f `gk'[2,`k'] _col(56) %8.3f `gk'[3,`k']
+		}
 	}
 	else {
 		di as txt "   Mundlak gap g_X = " as res "." as txt " (not computed with weights)"
@@ -626,7 +638,7 @@ program cre_display
 		di as txt "{p 0 6 2}Note: the cell frequencies are proportional, so dimension-wise means (egen ..., by() for each dimension) would also reproduce the fixed-effects estimator here.{p_end}"
 	}
 	else {
-		di as txt "{p 0 6 2}Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint projection of the regressors that they cannot span.{p_end}"
+		di as txt "{p 0 6 2}Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint projection of the regressors that they cannot span. By regressor, within / P x is the part of the regressor that the fixed effects leave, relative to its projection onto them, and the gap relative to that within variation is what governs how far the dimension-wise estimates fall from the fixed-effects ones.{p_end}"
 	}
 	if e(cre_d_exact)==0 {
 		di as txt "{p 0 6 2}Note: the rank of the fixed-effect design was taken from reghdfe, which can overstate it with three or more dimensions; raise dcap() for the exact rank.{p_end}"

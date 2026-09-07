@@ -39,6 +39,23 @@ label var bw        "brand x week"
 *    not proportional, so by-hand dimension-wise means would not reproduce them.
 cre, jm abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
 
+*    By regressor: the gap, the within variation of the regressor relative to its projection
+*    onto the pair effects (the part of it they leave), and the gap relative to that, as
+*    posted in e(cre_gap_k)
+matlist e(cre_gap_k), format(%9.4f)
+
+* 1b. The by-hand alternative: the mean of each regressor along each dimension, appended to
+*     the pooled regression.  Its slopes are several standard errors from the fixed-effects
+*     ones although the gap is about one percent, because the pair effects leave only 1.5
+*     percent of the own price's variation and the gap is 0.39 times that.
+foreach v of varlist lprice lp_prem lp_nat lp_sto deal feat {
+    egen double dw1_`v' = mean(`v'), by(sb)
+    egen double dw2_`v' = mean(`v'), by(storeweek)
+    egen double dw3_`v' = mean(`v'), by(bw)
+}
+regress logmove lprice lp_prem lp_nat lp_sto deal feat dw1_* dw2_* dw3_*
+drop dw1_* dw2_* dw3_*
+
 * 2. Standard errors allowing for components shared within store-brand, store-week and
 *    brand-week cells, against heteroskedasticity-robust ones
 cre, jm fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat

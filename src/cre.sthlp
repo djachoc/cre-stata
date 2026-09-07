@@ -224,7 +224,13 @@ fixed-effect design and its ratio to the sample size, whether the support graph 
 whether every pair of dimensions has proportional cell frequencies, the largest cell, the
 largest pairwise cell, the largest category, and the Mundlak gap: the share of the joint
 projection of the regressors that dimension-wise means cannot span, which is zero exactly when
-those means would reproduce the fixed-effects estimator. The gap is not computed with weights.
+those means would reproduce the fixed-effects estimator. By regressor it also reports the gap,
+the within variation of the regressor relative to its projection onto the fixed effects (the
+part of the regressor that the fixed effects leave), and the gap relative to that within
+variation, posted in {cmd:e(cre_gap_k)}: a small gap moves the dimension-wise estimates a long
+way when the fixed effects leave little of the regressor, so the last of the three is what
+governs how far those estimates fall from the fixed-effects ones. The gap is not computed with
+weights.
 
 {phang}
 {opt dcap(#)} sets the largest number of fixed-effect levels outside the largest dimension for
@@ -291,7 +297,8 @@ shortcut is from it.
 {pstd}
 {it:Note: the cell frequencies are not proportional.} Dimension-wise means formed by hand would
 not reproduce the fixed-effects estimator on this support; the coefficients {cmd:cre} reports
-do, and the Mundlak gap says how far the by-hand controls fall short.
+do, and the Mundlak gap says how far the by-hand controls fall short, overall and, relative to
+the within variation of each regressor, coefficient by coefficient.
 
 {pstd}
 {it:Note: the largest cluster is large relative to the sample.} The clustered standard errors
@@ -327,8 +334,8 @@ the controls come from {helpb reghdfe}, the cell sums from grouped passes over t
 rank of the design and the exact projector from a Gram matrix of the levels outside the largest
 dimension, which is absorbed exactly, when those levels number at most {opt dcap()}. The
 estimators, the diagnostics and the test were validated against an
-independent implementation in Python on the same data, to machine precision on the point
-estimates and to a relative 1e-9 on every variance matrix.
+independent implementation on the designs of the paper's Monte Carlo experiments, to machine
+precision on the point estimates and to a relative 1e-9 on every variance matrix.
 
 {pstd}
 Under {opt fevce()} or {opt pitest} the posted results are {cmd:cre}'s own: {cmd:e(cmd)} is
@@ -369,6 +376,7 @@ the created controls still in the data, so it is not available after {opt drop}.
 
 {p2col 5 26 30 2: Matrices (diagnostics)}{p_end}
 {synopt:{cmd:e(cre_N_fe)}}number of levels of each dimension, 1 x M{p_end}
+{synopt:{cmd:e(cre_gap_k)}}by regressor, 3 x K: the Mundlak gap, the within variation of the regressor relative to its projection onto the fixed effects, and the gap relative to that within variation (missing with weights){p_end}
 
 {p2col 5 26 30 2: With {opt fevce()}}{p_end}
 {synopt:{cmd:e(cmd)}}{cmd:cre}; {cmd:e(cmd_wrapped)} is {cmd:regress}{p_end}
@@ -480,7 +488,7 @@ Wooldridge, J. M. 2019. Correlated random effects models with unbalanced panels.
 {pstd}djachocha@emory.edu{p_end}
 
 {pstd}
-The original {cmd:cre} prefix command is by Fernando Rios-Avila. All errors are the authors' own.
+All errors are the authors' own.
 
 
 {title:Also see}
