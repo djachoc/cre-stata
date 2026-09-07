@@ -142,7 +142,9 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	string rowvector fev
 	string scalar lvlab
 	real matrix L, X, PX, Xt, C, CT, Gram, WtW, EV, G, GR, bread, Amat, V, meat
-	real matrix mask, AW, AX, Mx, Bg, info1, info2, TRSR, exRSR
+	real matrix mask, AW, AX, Mx, Bg, info1, info2, TRSR, exRSR, AWeG, AXeH
+	real colvector sel, j2c, s2c, n2c
+	real scalar chunk, c0, c1
 	real colvector Nm, ooff, others, js, T, q, vG, vGR, nu, Pdiag, Ldiag, Rdiag, w
 	real colvector ia, ib, code, cnt, tu, ju, nuu, u, mhat, theta, sig2, sig2p
 	real colvector lvsize, ordr, CL, Sig, Pm, TR, PF, TL, exR, exL, inert, keep
@@ -357,36 +359,51 @@ void cre_exact_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		// T_L(R Sh^off_e R) for every active e and every level L with C_L > 0
 		TRSR = J(nlev, nE, 0)
 		for (a = 1; a <= nE; a++) {
+			Te = rows(*pcnt[Ecol[a]])
+			AWeG = (Dp > 0 ? (*pAW[Ecol[a]]) * G : J(Te, 0, 0))
+			AXeH = (*pAX[Ecol[a]]) * bread
+			cre_joint(*pcode[Ecol[a]], js, t1, j1, n1)
+			info1 = panelsetup(j1, 1)
 			for (i = 1; i <= nlev; i++) {
 				if (CL[i] == 0) continue
-				// ||Delta_e' R Delta_F||_F^2 = ||N - M||_F^2, N the joint counts of e u F
-				Te = rows(*pcnt[Ecol[a]])
+				// ||Delta_e' R Delta_F||_F^2 = ||N - M||_F^2, N the joint counts of e u F,
+				// M = Delta_e' Pi Delta_F formed in column chunks of at most memcap doubles
 				TF = rows(*pcnt[i])
-				if (Te * TF > memcap) {
-					errprintf("fevce(plugin): the cross term of two levels with %g and %g cells needs a %g x %g array, above memcap(%g) doubles\n", Te, TF, Te, TF, memcap)
-					exit(498)
-				}
-				Mx = ((*pAX[Ecol[a]]) * bread) * (*pAX[i])'
-				if (Dp > 0) Mx = Mx + ((*pAW[Ecol[a]]) * G) * (*pAW[i])'
-				// plus C_{e,m*} diag(1/T) C_{m*,F}: one outer product per m* category
-				cre_joint(*pcode[Ecol[a]], js, t1, j1, n1)
 				cre_joint(*pcode[i], js, s2, j2, n2)
-				info1 = panelsetup(j1, 1)
-				info2 = panelsetup(j2, 1)
-				sstart = J(Ns, 1, 0)
-				send = J(Ns, 1, 0)
-				sstart[j2[info2[., 1]]] = info2[., 1]
-				send[j2[info2[., 1]]] = info2[., 2]
-				for (k = 1; k <= rows(info1); k++) {
-					jj = j1[info1[k, 1]]
-					if (sstart[jj] == 0) continue
-					ta = (info1[k, 1]::info1[k, 2])
-					sb = (sstart[jj]::send[jj])
-					Mx[t1[ta], s2[sb]] = Mx[t1[ta], s2[sb]] + (n1[ta] / T[jj]) * n2[sb]'
-				}
 				cre_joint(*pcode[Ecol[a]], *pcode[i], ts, ss, ns)
-				MM = sum(Mx :* Mx)
-				NM = sum(ns :* vec(Mx)[(ss :- 1) :* Te :+ ts])
+				chunk = max((1, floor(memcap / Te)))
+				MM = 0
+				NM = 0
+				for (c0 = 1; c0 <= TF; c0 = c0 + chunk) {
+					c1 = min((c0 + chunk - 1, TF))
+					Mx = AXeH * ((*pAX[i])[|c0, 1 \ c1, K|])'
+					if (Dp > 0) Mx = Mx + AWeG * ((*pAW[i])[|c0, 1 \ c1, Dp|])'
+					// plus C_{e,m*} diag(1/T) C_{m*,F}: one outer product per m* category,
+					// restricted to the F cells of this chunk
+					sel = selectindex((s2 :>= c0) :& (s2 :<= c1))
+					if (rows(sel) > 0) {
+						j2c = j2[sel]
+						s2c = s2[sel] :- (c0 - 1)
+						n2c = n2[sel]
+						info2 = panelsetup(j2c, 1)
+						sstart = J(Ns, 1, 0)
+						send = J(Ns, 1, 0)
+						sstart[j2c[info2[., 1]]] = info2[., 1]
+						send[j2c[info2[., 1]]] = info2[., 2]
+						for (k = 1; k <= rows(info1); k++) {
+							jj = j1[info1[k, 1]]
+							if (sstart[jj] == 0) continue
+							ta = (info1[k, 1]::info1[k, 2])
+							sb = (sstart[jj]::send[jj])
+							Mx[t1[ta], s2c[sb]] = Mx[t1[ta], s2c[sb]] + (n1[ta] / T[jj]) * n2c[sb]'
+						}
+					}
+					MM = MM + sum(Mx :* Mx)
+					sel = selectindex((ss :>= c0) :& (ss :<= c1))
+					if (rows(sel) > 0) {
+						NM = NM + sum(ns[sel] :* vec(Mx)[(ss[sel] :- c0) :* Te :+ ts[sel]])
+					}
+				}
 				NN = sum(ns :^ 2)
 				TRSR[i, a] = (MM - 2 * NM + NN) - Sig[i] - Sig[Ecol[a]] + trR
 			}
