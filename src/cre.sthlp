@@ -73,7 +73,7 @@ for every regressor, controls spanning the projection of the regressor onto the 
 the fixed effects, appends them to the regressor list, and runs the wrapped estimation command.
 When the wrapped command is {helpb regress}, the coefficients on the regressors equal those of
 the multiway fixed-effects (within) estimator, on an irregular support and for any number of dimensions
-(Harrison, Canavire Bacarreza, Jacho-Ch{c a'}vez, and Rios-Avila 2026). This is the multiway,
+(Harrison, Canavire Bacarreza, Jacho-Chavez, and Rios-Avila 2026). This is the multiway,
 irregular-support counterpart of the Mundlak equivalence behind {helpb xtreg}{cmd:, cre}
 (Mundlak 1978; Wooldridge 2019), in which the panel means of the regressors are the controls.
 
@@ -442,7 +442,7 @@ Correia, S. 2016. Linear models with high-dimensional fixed effects: An efficien
 estimator. Working paper.
 
 {phang}
-Harrison, B. O., G. Canavire Bacarreza, D. T. Jacho-Ch{c a'}vez, and F. Rios-Avila. 2026.
+Harrison, B. O., G. Canavire Bacarreza, D. T. Jacho-Chavez, and F. Rios-Avila. 2026.
 Mundlak regressions in multiway panels with irregular support: Failure, repair, and inference.
 Unpublished manuscript.
 
@@ -451,7 +451,7 @@ Mundlak, Y. 1978. On the pooling of time series and cross section data. {it:Econ
 46(1): 69-85.
 
 {phang}
-Rios-Avila, F., G. Canavire Bacarreza, B. O. Harrison, and D. T. Jacho-Ch{c a'}vez. 2026.
+Rios-Avila, F., G. Canavire Bacarreza, B. O. Harrison, and D. T. Jacho-Chavez. 2026.
 cre: Correlated random effects regressions with multiway fixed effects and irregular support.
 Unpublished manuscript.
 
@@ -474,7 +474,7 @@ Wooldridge, J. M. 2019. Correlated random effects models with unbalanced panels.
 {pstd}Emory University{p_end}
 {pstd}Atlanta, USA{p_end}
 
-{pstd}David Jacho-Ch{c a'}vez{p_end}
+{pstd}David Jacho-Chavez{p_end}
 {pstd}Emory University{p_end}
 {pstd}Atlanta, USA{p_end}
 {pstd}djachocha@emory.edu{p_end}

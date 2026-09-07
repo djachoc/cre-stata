@@ -3,7 +3,7 @@
 Weekly store-level scanner data on refrigerated orange juice at Dominick's Finer Foods, a
 Chicago supermarket chain: 83 stores, 11 brands, 121 weeks (weeks 40 to 160 of the chain's
 calendar), 106,139 brand-store-week observations, 96 percent of the complete product. It is the
-data set of the empirical application in Harrison, Canavire Bacarreza, Jacho-Chávez and
+data set of the empirical application in Harrison, Canavire Bacarreza, Jacho-Chavez and
 Rios-Avila (2026), and a genuinely irregular three-way panel: every store carries every brand at
 some point and every brand is observed in every week, but 394 of the 10,043 store-weeks are
 missing and, within a realized store-week, not every brand is present.
