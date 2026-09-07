@@ -1,4 +1,4 @@
-*! version 0.1.0  07Sep2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
+*! version 0.2.0  07Sep2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * The Mundlak test of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
 * (2026), the correlated-effects coefficient section.  With Z = P_[Delta] X the

@@ -91,7 +91,7 @@
 Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
   n = 106139   M = 3   N_m = 913 9649 1331   N_* = 913
-  d_[Delta] = 11689 (from reghdfe e(df_a))   d/n = 0.1101   connected: no
+  d_[Delta] = 11679 (exact)   d/n = 0.1100   connected: no
   proportional cell frequencies: no  (max deviation .993)
   c_max = 1   c2_max = 1   G_max = 121   Mundlak gap g_X = 0.0111
 -------------------------------------------------------------------------------
@@ -100,8 +100,6 @@ Note: the coefficients on the regressors equal the multiway fixed-effects (withi
 Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each
       dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint
       projection of the regressors that they cannot span.
-Note: the rank of the fixed-effect design was taken from reghdfe, which can overstate it with
-      three or more dimensions; raise dcap() for the exact rank.
 Note: the support graph is not connected; the fixed effects are identified only up to one constant
       per connected component, which the within transformation handles.
 
@@ -155,6 +153,64 @@ Std. err.: heteroskedasticity-robust; valid when the disturbances are independen
       lp_sto |  -.2410367   .0850096    -2.84   0.005    -.4076525   -.0744209
         deal |   .0278758   .0070473     3.96   0.000     .0140634    .0416883
         feat |   .0340359   .1755107     0.19   0.846    -.3099588    .3780306
+------------------------------------------------------------------------------
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+. 
+. * 2b. The two estimators that need the exact projector: the leverage correction and the
+. *     plug-in over the variance components.  With 11,893 fixed-effect levels, of which 2,244
+. *     lie outside the largest dimension, each runs in seconds.
+. cre, jm fevce(lc) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal f
+> eat
+
+Correlated random-effects regression         Number of obs       =      106,139
+Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,679
+Absorbed dimensions: sb storeweek bw
+Std. err.: leverage-corrected robust; exact when the disturbances are independent with a constant
+           variance; no small-sample adjustment; z-based inference
+min R_oo = .861      observations without within variation (dropped) = 0
+------------------------------------------------------------------------------
+             |              Leverage
+     logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .0675105   -23.01   0.000    -1.685466    -1.42083
+     lp_prem |   1.258966   .1772582     7.10   0.000      .911546    1.606385
+      lp_nat |   5.630578   .3593153    15.67   0.000     4.926333    6.334823
+      lp_sto |  -.2410367   .0902392    -2.67   0.008    -.4179022   -.0641712
+        deal |   .0278758   .0074719     3.73   0.000     .0132312    .0425204
+        feat |   .0340359   .1870183     0.18   0.856    -.3325133    .4005851
+------------------------------------------------------------------------------
+Note: the coefficients on the Mundlak controls and their classical standard errors are in
+      e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
+      whose coefficients converge at the rate of the smallest absorbed dimension, not of the
+      sample size. Specify pitest for valid inference on them.
+
+. cre, jm fevce(plugin) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto de
+> al feat
+
+Correlated random-effects regression         Number of obs       =      106,139
+Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,679
+Absorbed dimensions: sb storeweek bw
+Std. err.: plug-in from the interaction variance components; allows shared components within
+           cells; constant idiosyncratic variance; no small-sample adjustment; z-based inference
+rho_n = .0338  moment design 4 x 1  sigma_min(A) = .894
+Variance components: sbar^2 = .1254
+Note: no pair of observations shares a cell of two or more absorbed dimensions, so no interaction
+      variance is identified and the plug-in reduces to the homoskedastic sandwich sbar^2
+      (Xt'Xt)^-1.
+------------------------------------------------------------------------------
+             |               Plug-in
+     logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      lprice |  -1.553148   .0470089   -33.04   0.000    -1.645284   -1.461012
+     lp_prem |   1.258966   .1593088     7.90   0.000     .9467261    1.571205
+      lp_nat |   5.630578   .3029641    18.58   0.000     5.036779    6.224376
+      lp_sto |  -.2410367   .0713667    -3.38   0.001    -.3809128   -.1011606
+        deal |   .0278758   .0071103     3.92   0.000       .01394    .0418117
+        feat |   .0340359   .1278364     0.27   0.790    -.2165188    .2845907
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard errors are in
       e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls,
