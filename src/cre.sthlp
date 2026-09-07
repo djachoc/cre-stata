@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 2.0.1 07sep2026}{...}
+{* *! version 0.1.0 07sep2026}{...}
 {cmd:help cre}
 {hline}
 
@@ -344,7 +344,7 @@ the created controls still in the data, so it is not available after {opt drop}.
 {synoptset 26 tabbed}{...}
 {p2col 5 26 30 2: Macros}{p_end}
 {synopt:{cmd:e(m_list)}}names of the created controls{p_end}
-{synopt:{cmd:e(cre_version)}}{cmd:2.0.1}{p_end}
+{synopt:{cmd:e(cre_version)}}{cmd:0.1.0}{p_end}
 {synopt:{cmd:e(cre_branch)}}{cmd:compact} or {cmd:components}{p_end}
 {synopt:{cmd:e(cre_fe)}}absorbed dimensions{p_end}
 
@@ -476,7 +476,7 @@ Wooldridge, J. M. 2019. Correlated random effects models with unbalanced panels.
 {pstd}djachocha@emory.edu{p_end}
 
 {pstd}
-Versions 1.x are by Fernando Rios-Avila. All errors are the authors' own.
+The original {cmd:cre} prefix command is by Fernando Rios-Avila. All errors are the authors' own.
 
 
 {title:Also see}

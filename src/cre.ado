@@ -1,10 +1,10 @@
-*! version 2.0.1  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
+*! version 0.1.0  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
-* v2.0.1  displays, notes and help rewritten to say what each result means; classical
-*         (not conventional) for the pooled-OLS comparator; plug-in note when no
-*         interaction variance is identified; version posted as 2.0.1
-* v2.0.0  jm (alias of compact); support diagnostics and the Mundlak gap of
-*         Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila (2026), posted in e()
+* v0.1.0  (alpha) first public release: the joint-projection controls of Fernando
+*         Rios-Avila's cre prefix command, plus the support diagnostics, the Mundlak gap,
+*         fevce() and pitest of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
+*         (2026); displays, notes and help say what each result means
+* Fernando's earlier cre, on SSC:
 * v1.2.1  CRE Improvements on Options Keep drop
 * v1.2.0  CRE Correlated RE model. Allows for two word commands and long vars
 * v1.1.1  CRE Correlated RE model. Allows for Fracreg
@@ -127,7 +127,7 @@ program define cre, properties(prefix)
 		local xnames `r(xnames)'
 		local dfa    `r(df_a)'
 
-		** support diagnostics and the Mundlak gap (v2.0.0)
+		** support diagnostics and the Mundlak gap
 		local diagnames n M D d_delta d_exact connected proportional prop_dev ///
 		                c_max c2_max G_max N_ast g_X
 		if "`nodiag'"=="" {
@@ -139,7 +139,7 @@ program define cre, properties(prefix)
 			tempname Nfe
 			matrix `Nfe' = r(N_fe)
 		}
-		** the slope's variance (v2.0.0): fixed-effects residual from one
+		** the slope's variance: fixed-effects residual from one
 		** reghdfe fit, Xt = x - P_[Delta]x from the controls already built
 		if "`fevce'"!="" {
 			tempvar nu
@@ -274,7 +274,7 @@ program define cre, properties(prefix)
 			}
 		}
 		adde local m_list `vlist'
-		adde local cre_version "2.0.1"
+		adde local cre_version "0.1.0"
 		if "`compact'"!="" adde local cre_branch "compact"
 		else adde local cre_branch "components"
 		adde local cre_fe `felist'

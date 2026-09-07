@@ -1,4 +1,4 @@
-*! version 2.0.1  07Sep2026  cre_exact: the exact branch -- leverage correction and plug-in (Mata; needs ftools)
+*! version 0.1.0  07Sep2026  cre_exact: the exact branch -- leverage correction and plug-in (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * The two estimators of the feasible inference section of Harrison, Canavire
 * Bacarreza, Jacho-Chavez and Rios-Avila (2026) that need the EXACT projector
