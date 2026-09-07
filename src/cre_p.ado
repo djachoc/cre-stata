@@ -1,4 +1,4 @@
-*! version 2.0.1  07Sep2026  cre_p: predict after cre with fevce() or pitest
+*! version 0.1.0  07Sep2026  cre_p: predict after cre with fevce() or pitest
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * Under fevce()/pitest cre posts the slope block only, so the linear prediction
 * is rebuilt from the pooled Mundlak regression stored in e(cre_b_pooled):

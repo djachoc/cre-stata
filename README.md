@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.1-0f6e73" alt="version 2.0.1">
+  <img src="https://img.shields.io/badge/lifecycle-alpha-e0891c" alt="lifecycle: alpha">
+  <img src="https://img.shields.io/badge/version-0.1.0-0f6e73" alt="version 0.1.0">
   <img src="https://img.shields.io/badge/Stata-14%2B-083d4a" alt="Stata 14+">
   <img src="https://img.shields.io/badge/requires-reghdfe%20%7C%20ftools-5b7a80" alt="requires reghdfe and ftools">
   <img src="https://img.shields.io/badge/license-MIT-f4b942" alt="MIT license">
@@ -21,9 +22,8 @@ short on your data.
 
 The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chávez and Rios-Avila
 (2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chávez (2026),
-*cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels*,
-prepared for the *Stata Journal*. Version 1 of `cre`, by Fernando Rios-Avila, already produced
-the right point estimates; version 2 adds the diagnostics, the standard errors and the test.
+*cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels*.
+This is the alpha release, version 0.1.0.
 
 ## Installation
 
@@ -37,7 +37,7 @@ net install cre, from("https://raw.githubusercontent.com/djachoc/cre-stata/main/
 ```
 
 `cre` runs on Stata 14 or later and was validated on Stata 17. To update, run the `net install`
-line again.
+line again. This is an alpha release: the option surface may still change before 1.0.
 
 ## Quick start
 
@@ -150,7 +150,7 @@ provenance and the attribution.
 @unpublished{RiosAvilaEtAl2026_cre,
   author = {Rios-Avila, Fernando and Canavire Bacarreza, Gustavo and Harrison, Benjamin O. and Jacho-Ch{\'a}vez, David T.},
   title  = {cre: Correlated random effects regressions with multiway fixed effects on unbalanced panels},
-  note   = {Unpublished manuscript, prepared for the Stata Journal},
+  note   = {Unpublished manuscript},
   year   = {2026}
 }
 
@@ -164,10 +164,11 @@ provenance and the attribution.
 
 ## Authors
 
-Fernando Rios-Avila (Universidad Privada Boliviana and London School of Economics and Political
-Science), Gustavo Canavire Bacarreza (World Bank and Universidad Privada Boliviana), Benjamin O.
-Harrison (Emory University) and David T. Jacho-Chávez (Emory University). Versions 1.x are by
-Fernando Rios-Avila.
+[Fernando Rios-Avila](https://friosavila.github.io/) (Universidad Privada Boliviana and London
+School of Economics and Political Science), [Gustavo Canavire Bacarreza](https://gcanavire.com/)
+(World Bank and Universidad Privada Boliviana), [Benjamin O. Harrison](https://benhars.com/)
+(Emory University) and [David T. Jacho-Chávez](https://www.davidjachochavez.org) (Emory
+University). The original `cre` prefix command is by Fernando Rios-Avila.
 
 `cre` relies on Sergio Correia's [`reghdfe`](https://github.com/sergiocorreia/reghdfe) and
 [`ftools`](https://github.com/sergiocorreia/ftools). The orange-juice data originate in the
