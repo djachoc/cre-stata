@@ -1,5 +1,7 @@
-*! version 0.1.0  07Sep2026  cre: correlated random effects by joint projection, with support diagnostics
+*! version 0.1.1  20Sep2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
+* v0.1.1  (alpha) pitest no longer computes or posts the dimension-wise comparator
+*         (e(cre_V_pi_dim), e(cre_pi_*_dim)), which the paper no longer reports
 * v0.1.0  (alpha) first public release: the joint-projection controls of the cre prefix
 *         command, plus the support diagnostics, the Mundlak gap by regressor,
 *         fevce() and pitest of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
@@ -190,11 +192,10 @@ program define cre, properties(prefix)
 				tempname piR pir
 				matrix `piR' = r(R)
 				matrix `pir' = r(rvec)
-				tempname bpi Vpi Vpid
+				tempname bpi Vpi
 				matrix `bpi' = r(pi)
 				matrix `Vpi' = r(V_pi)
-				matrix `Vpid' = r(V_pi_dim)
-				local piscalars N_ast q df wald p pd trunc mineig wald_dim p_dim pd_dim wald_conv p_conv sigma2_pooled custom
+				local piscalars N_ast q df wald p pd trunc mineig wald_conv p_conv sigma2_pooled custom
 				foreach s of local piscalars {
 					local P_`s' = r(`s')
 				}
@@ -231,8 +232,6 @@ program define cre, properties(prefix)
 				matrix colnames `bpi' = `vlist'
 				matrix colnames `Vpi' = `vlist'
 				matrix rownames `Vpi' = `vlist'
-				matrix colnames `Vpid' = `vlist'
-				matrix rownames `Vpid' = `vlist'
 				tempname bz Vz
 				matrix `bz' = `bfe', `bpi'
 				matrix `Vz' = (`Vfe', J(`K', `K', 0)) \ (J(`K', `K', 0), `Vpi')
@@ -244,7 +243,6 @@ program define cre, properties(prefix)
 			adde post `bfe' `Vfe', obs(`Nobs') esample(`esamp') depname(`y')
 			if "`pitest'"!="" {
 				adde matrix cre_V_pi = `Vpi'
-				adde matrix cre_V_pi_dim = `Vpid'
 				foreach s of local piscalars {
 					adde scalar cre_pi_`s' = `P_`s''
 				}
@@ -577,14 +575,11 @@ program cre_display_est
 			di as txt "{p 4 4 2}(the variance of R pi is not positive definite: the statistic is reported as zero){p_end}"
 		}
 		di as txt "  for comparison:"
-		di as txt "    dimension-wise clustered" ///
-		   _col(38) "chi2(`q') = " as res %8.2f e(cre_pi_wald_dim) ///
-		   as txt "   Prob > chi2 = " as res %6.4f e(cre_pi_p_dim)
 		di as txt "    classical (pooled OLS)" ///
 		   _col(38) "chi2(`q') = " as res %8.2f e(cre_pi_wald_conv) ///
 		   as txt "   Prob > chi2 = " as res %6.4f e(cre_pi_p_conv)
 		di as txt "{hline 79}"
-		di as txt "{p 0 6 2}Note: the classical statistic uses standard errors of the wrong order and over-rejects, increasingly so as the sample grows; the dimension-wise variance counts shared pairs more than once and under-rejects. The first statistic is the valid one.{p_end}"
+		di as txt "{p 0 6 2}Note: the classical statistic uses standard errors of the wrong order and over-rejects, increasingly so as the sample grows. The first statistic is the valid one.{p_end}"
 		if e(cre_pi_trunc)==1 {
 			local me = strtrim(string(e(cre_pi_mineig), "%9.3g"))
 			di as txt "{p 0 6 2}Note: the clustered variance of the controls was not positive semidefinite (smallest eigenvalue `me'); its negative eigenvalues were set to zero.{p_end}"

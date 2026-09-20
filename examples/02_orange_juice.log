@@ -414,13 +414,11 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
 -------------------------------------------------------------------------------
   clustered on absorbed dimensions   chi2(6) =    77.36   Prob > chi2 = 0.0000
   for comparison:
-    dimension-wise clustered         chi2(6) =    48.58   Prob > chi2 = 0.0000
     classical (pooled OLS)           chi2(6) =   510.36   Prob > chi2 = 0.0000
 -------------------------------------------------------------------------------
 Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows; the dimension-wise
-      variance counts shared pairs more than once and under-rejects. The
-      first statistic is the valid one.
+      over-rejects, increasingly so as the sample grows. The first statistic
+      is the valid one.
 
 . 
 . * 5. Is the correlated-effects coefficient on the own price alone zero?
@@ -468,13 +466,11 @@ Test of H0: R pi = r on the Mundlak controls (R in e(cre_pi_R), r in e(cre_pi_r
 -------------------------------------------------------------------------------
   clustered on absorbed dimensions   chi2(1) =     2.73   Prob > chi2 = 0.0987
   for comparison:
-    dimension-wise clustered         chi2(1) =     1.86   Prob > chi2 = 0.1723
     classical (pooled OLS)           chi2(1) =    14.46   Prob > chi2 = 0.0001
 -------------------------------------------------------------------------------
 Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows; the dimension-wise
-      variance counts shared pairs more than once and under-rejects. The
-      first statistic is the valid one.
+      over-rejects, increasingly so as the sample grows. The first statistic
+      is the valid one.
 
 . 
 end of do-file

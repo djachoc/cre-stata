@@ -203,9 +203,9 @@ classical Wald statistic over-rejects, increasingly so as the sample grows. {opt
 the coefficients on the controls beside those on the regressors, with a variance clustered on
 all absorbed dimensions at once and scaled at the right rate; the covariance between the two
 blocks is set to zero. The output reports the Mundlak test with this variance, and, for
-comparison, the statistics that a dimension-wise clustered variance and the classical
-pooled-OLS variance would give. Requires {opt jm}; without {opt fevce()}, the coefficients on
-the regressors are posted with {opt white}.
+comparison, the statistic that the classical pooled-OLS variance would give. Requires
+{opt jm}; without {opt fevce()}, the coefficients on the regressors are posted with
+{opt white}.
 
 {phang}
 {opt pirest(matname)} and {opt pinull(numlist)} test the restriction R pi = r on the vector pi of
@@ -392,10 +392,9 @@ the created controls still in the data, so it is not available after {opt drop}.
 {synopt:{cmd:e(cre_theta)}, {cmd:e(cre_theta_levels)}, {cmd:e(cre_sbar2)}, {cmd:e(cre_coef_sbar)}, {cmd:e(cre_minPF)}}estimated variance components and their levels ({cmd:plugin}){p_end}
 
 {p2col 5 26 30 2: With {opt pitest}}{p_end}
-{synopt:{cmd:e(cre_V_pi)}, {cmd:e(cre_V_pi_dim)}}variance of the coefficients on the controls, clustered on the absorbed dimensions, and its dimension-wise comparator{p_end}
+{synopt:{cmd:e(cre_V_pi)}}variance of the coefficients on the controls, clustered on the absorbed dimensions{p_end}
 {synopt:{cmd:e(cre_pi_wald)}, {cmd:e(cre_pi_p)}, {cmd:e(cre_pi_df)}, {cmd:e(cre_pi_pd)}}Mundlak test statistic, p-value, degrees of freedom, and positive-definiteness flag{p_end}
 {synopt:{cmd:e(cre_pi_trunc)}, {cmd:e(cre_pi_mineig)}}1 if negative eigenvalues were set to zero, and the smallest eigenvalue{p_end}
-{synopt:{cmd:e(cre_pi_wald_dim)}, {cmd:e(cre_pi_p_dim)}, {cmd:e(cre_pi_pd_dim)}}the dimension-wise comparator{p_end}
 {synopt:{cmd:e(cre_pi_wald_conv)}, {cmd:e(cre_pi_p_conv)}, {cmd:e(cre_pi_sigma2_pooled)}}the classical pooled-OLS comparator and its residual variance{p_end}
 {synopt:{cmd:e(cre_pi_N_ast)}}smallest number of levels of a dimension{p_end}
 {synopt:{cmd:e(cre_pi_q)}, {cmd:e(cre_pi_custom)}}number of controls; 1 when {opt pinull()} or {opt pirest()} was given{p_end}

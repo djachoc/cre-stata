@@ -248,13 +248,11 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
 -------------------------------------------------------------------------------
   clustered on absorbed dimensions   chi2(2) =   165.68   Prob > chi2 = 0.0000
   for comparison:
-    dimension-wise clustered         chi2(2) =    14.36   Prob > chi2 = 0.0008
     classical (pooled OLS)           chi2(2) =    11.66   Prob > chi2 = 0.0029
 -------------------------------------------------------------------------------
 Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows; the dimension-wise
-      variance counts shared pairs more than once and under-rejects. The
-      first statistic is the valid one.
+      over-rejects, increasingly so as the sample grows. The first statistic
+      is the valid one.
 
 Support diagnostics (compact controls)
 -------------------------------------------------------------------------------

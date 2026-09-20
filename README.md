@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/lifecycle-alpha-e0891c" alt="lifecycle: alpha">
-  <img src="https://img.shields.io/badge/version-0.1.0-0f6e73" alt="version 0.1.0">
+  <img src="https://img.shields.io/badge/version-0.1.1-0f6e73" alt="version 0.1.1">
   <img src="https://img.shields.io/badge/Stata-14%2B-083d4a" alt="Stata 14+">
   <img src="https://img.shields.io/badge/requires-reghdfe%20%7C%20ftools-5b7a80" alt="requires reghdfe and ftools">
   <img src="https://img.shields.io/badge/license-MIT-f4b942" alt="MIT license">
@@ -23,7 +23,7 @@ short on your data.
 The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
 (2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chavez (2026),
 *cre: Correlated random effects regressions with multiway fixed effects and irregular support*.
-This is the alpha release, version 0.1.0.
+This is the alpha release, version 0.1.1.
 
 ## Installation
 
@@ -93,12 +93,10 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
 -------------------------------------------------------------------------------
   clustered on absorbed dimensions   chi2(6) =    77.36   Prob > chi2 = 0.0000
   for comparison:
-    dimension-wise clustered         chi2(6) =    48.58   Prob > chi2 = 0.0000
     classical (pooled OLS)           chi2(6) =   510.36   Prob > chi2 = 0.0000
 -------------------------------------------------------------------------------
 Note: the classical statistic uses standard errors of the wrong order and over-rejects,
-      increasingly so as the sample grows; the dimension-wise variance counts shared pairs more
-      than once and under-rejects. The first statistic is the valid one.
+      increasingly so as the sample grows. The first statistic is the valid one.
 ```
 
 The own-price elasticity is −1.55 whichever standard errors are used; what changes is the
