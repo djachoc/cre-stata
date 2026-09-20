@@ -1,4 +1,3 @@
-
 . * 02_orange_juice.do -- the empirical application of Harrison, Canavire Bacar
 > reza,
 . * Jacho-Chavez and Rios-Avila (2026) on the Dominick's orange-juice panel (da
@@ -116,14 +115,13 @@ Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
 Note: the coefficients on the regressors equal the multiway fixed-effects
       (within) estimator on an irregular support.
-Note: the cell frequencies are not proportional, so dimension-wise means
+Note: the cell frequencies are not proportional, so that dimension-wise means
       (egen ..., by() for each dimension) would not reproduce the
       fixed-effects estimator; g_X is the share of the joint projection of
-      the regressors that they cannot span. By regressor, within / P x is the
-      part of the regressor that the fixed effects leave, relative to its
-      projection onto them, and the gap relative to that within variation is
-      what governs how far the dimension-wise estimates fall from the
-      fixed-effects ones.
+      the regressors that those means cannot span. By regressor, within / P x
+      is the part of the regressor that the fixed effects leave, relative to
+      its projection onto them, and gap / within governs how far the
+      dimension-wise estimates fall from the fixed-effects ones.
 Note: the support graph is not connected; the fixed effects are identified
       only up to one constant per connected component, which the within
       transformation handles.
@@ -219,9 +217,8 @@ Std. err.: multiway clustered on the absorbed dimensions; allows dependence
 Largest cluster = 121   max. degree of sharing = 212   Gbar^3 d/n = 195101
 Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
       195101 > 1). The clustered standard errors are asymptotically valid
-      when this quantity is small. That is a sufficient condition, not a
-      necessary one, so its failure does not show the standard errors to be
-      invalid; it means that their validity is not verified by this check.
+      when this quantity is small; the condition is sufficient and not
+      necessary, so their validity is not verified by this check.
 ------------------------------------------------------------------------------
              |              Multiway
      logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -235,9 +232,9 @@ Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 . cre, jm fevce(white) nodiag abs(sb storeweek bw): regress logmove lprice lp_p
 > rem lp_nat lp_sto deal feat
@@ -261,9 +258,9 @@ Std. err.: heteroskedasticity-robust; valid when the disturbances are
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 . 
 . * 2b. The two estimators that need the exact projector: the leverage correcti
@@ -294,9 +291,9 @@ min R_oo = .861      observations without within variation (dropped) = 0
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 . cre, jm fevce(plugin) nodiag abs(sb storeweek bw): regress logmove lprice lp_
 > prem lp_nat lp_sto deal feat
@@ -309,9 +306,9 @@ Std. err.: plug-in from the interaction variance components; allows shared
            small-sample adjustment; z-based inference
 rho_n = .0338  moment design 4 x 1  sigma_min(A) = .894
 Variance components: sbar^2 = .1254
-Note: no pair of observations shares a cell of two or more absorbed
-      dimensions, so no interaction variance is identified and the plug-in
-      reduces to the homoskedastic sandwich sbar^2 (Xt'Xt)^-1.
+Note: no two observations share a cell of two or more absorbed dimensions, so
+      that no interaction variance is identified and the plug-in reduces to
+      the homoskedastic sandwich sbar^2 (Xt'Xt)^-1.
 ------------------------------------------------------------------------------
              |               Plug-in
      logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -325,9 +322,9 @@ Note: no pair of observations shares a cell of two or more absorbed
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 . 
 . * 3. Clustering on store and week, two overlapping dimensions that are not ab
@@ -348,9 +345,8 @@ Largest cluster = 1,331   max. degree of sharing = 2,232   Gbar^3 d/n = 2.60e+0
 > 8
 Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
       2.60e+08 > 1). The clustered standard errors are asymptotically valid
-      when this quantity is small. That is a sufficient condition, not a
-      necessary one, so its failure does not show the standard errors to be
-      invalid; it means that their validity is not verified by this check.
+      when this quantity is small; the condition is sufficient and not
+      necessary, so their validity is not verified by this check.
 ------------------------------------------------------------------------------
              |              Clustered
      logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -364,9 +360,9 @@ Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 . 
 . * 4. The Mundlak test that the regressors are uncorrelated with the fixed eff
@@ -384,9 +380,8 @@ Std. err.: multiway clustered on the absorbed dimensions; allows dependence
 Largest cluster = 121   max. degree of sharing = 212   Gbar^3 d/n = 195101
 Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
       195101 > 1). The clustered standard errors are asymptotically valid
-      when this quantity is small. That is a sufficient condition, not a
-      necessary one, so its failure does not show the standard errors to be
-      invalid; it means that their validity is not verified by this check.
+      when this quantity is small; the condition is sufficient and not
+      necessary, so their validity is not verified by this check.
 ------------------------------------------------------------------------------
              |              Multiway
      logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -417,8 +412,8 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
     classical (pooled OLS)           chi2(6) =   510.36   Prob > chi2 = 0.0000
 -------------------------------------------------------------------------------
 Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows. The first statistic
-      is the valid one.
+      over-rejects, increasingly so as the sample grows; the clustered
+      statistic is the valid one.
 
 . 
 . * 5. Is the correlated-effects coefficient on the own price alone zero?
@@ -436,9 +431,8 @@ Std. err.: multiway clustered on the absorbed dimensions; allows dependence
 Largest cluster = 121   max. degree of sharing = 212   Gbar^3 d/n = 195101
 Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
       195101 > 1). The clustered standard errors are asymptotically valid
-      when this quantity is small. That is a sufficient condition, not a
-      necessary one, so its failure does not show the standard errors to be
-      invalid; it means that their validity is not verified by this check.
+      when this quantity is small; the condition is sufficient and not
+      necessary, so their validity is not verified by this check.
 ------------------------------------------------------------------------------
              |              Multiway
      logmove | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -469,8 +463,8 @@ Test of H0: R pi = r on the Mundlak controls (R in e(cre_pi_R), r in e(cre_pi_r
     classical (pooled OLS)           chi2(1) =    14.46   Prob > chi2 = 0.0001
 -------------------------------------------------------------------------------
 Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows. The first statistic
-      is the valid one.
+      over-rejects, increasingly so as the sample grows; the clustered
+      statistic is the valid one.
 
 . 
 end of do-file

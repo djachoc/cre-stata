@@ -4,26 +4,24 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/lifecycle-alpha-e0891c" alt="lifecycle: alpha">
-  <img src="https://img.shields.io/badge/version-0.1.1-0f6e73" alt="version 0.1.1">
+  <img src="https://img.shields.io/badge/version-0.1.2-0f6e73" alt="version 0.1.2">
   <img src="https://img.shields.io/badge/Stata-14%2B-083d4a" alt="Stata 14+">
   <img src="https://img.shields.io/badge/requires-reghdfe%20%7C%20ftools-5b7a80" alt="requires reghdfe and ftools">
   <img src="https://img.shields.io/badge/license-MIT-f4b942" alt="MIT license">
 </p>
 
 **`cre`** fits correlated random-effects (Mundlak) regressions with any number of fixed-effect
-dimensions on balanced panels and on irregular supports. It builds, for every regressor, a control equal to
-its projection onto the joint span of the fixed effects, so that the coefficients on the
-regressors are the multiway fixed-effects estimates **on an irregular support**, and it comes with
-standard errors that allow for the dependence a multiway panel induces and with the Mundlak
-test at the right rate. The by-hand alternative, the means of each regressor along each
-dimension, reproduces the fixed-effects estimator only when the cell frequencies are
-proportional, which on a two-way panel means a complete panel; `cre` reports how far it falls
-short on your data.
+dimensions, on balanced panels and on irregular supports. For every regressor it builds one
+control, the projection of the regressor onto the joint span of the fixed effects, so that the
+coefficients on the regressors are the multiway fixed-effects estimates on any support. It also
+provides standard errors that allow for the dependence a multiway panel induces and the Mundlak
+test at the right rate. The means of each regressor along each dimension reproduce the
+fixed-effects estimator only when the cell frequencies are proportional, which on a two-way
+panel requires a complete panel; `cre` reports how far those means miss, overall and by regressor.
 
 The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
-(2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chavez (2026),
-*cre: Correlated random effects regressions with multiway fixed effects and irregular support*.
-This is the alpha release, version 0.1.1.
+(2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chavez (2026).
+Version 0.1.2 is an alpha release, and the options may change before 1.0.
 
 ## Installation
 
@@ -37,7 +35,7 @@ net install cre, from("https://raw.githubusercontent.com/djachoc/cre-stata/main/
 ```
 
 `cre` runs on Stata 14 or later and was validated on Stata 17. To update, run the `net install`
-line again. This is an alpha release: the option surface may still change before 1.0.
+line again.
 
 ## Quick start
 
@@ -58,15 +56,15 @@ cre, jm fevce(cluster(rep78)) abs(headroom trunk): regress mpg price foreign
 cre, jm pitest fevce(union) abs(headroom trunk): regress mpg price foreign
 ```
 
-`cre` is a prefix command: everything after the colon is an ordinary estimation command, and
-the created controls (`m_price`, `m_foreign`) stay in the data unless you say `drop`.
+`cre` is a prefix command. Everything after the colon is an ordinary estimation command, and
+the created controls (`m_price`, `m_foreign`) remain in the data unless `drop` is specified.
 
-## What the output looks like
+## Output
 
-The empirical application of the paper: a demand equation for orange juice on 106,139
+The empirical application of the paper, a demand equation for orange juice on 106,139
 brand-store-week observations with store×brand, store×week and brand×week effects absorbed
 ([`examples/02_orange_juice.do`](examples/02_orange_juice.do),
-[log](examples/02_orange_juice.log)).
+[log](examples/02_orange_juice.log)):
 
 ```
 . cre, jm pitest fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
@@ -95,46 +93,45 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
   for comparison:
     classical (pooled OLS)           chi2(6) =   510.36   Prob > chi2 = 0.0000
 -------------------------------------------------------------------------------
-Note: the classical statistic uses standard errors of the wrong order and over-rejects,
-      increasingly so as the sample grows. The first statistic is the valid one.
+Note: the classical statistic uses standard errors of the wrong order and
+      over-rejects, increasingly so as the sample grows; the clustered
+      statistic is the valid one.
 ```
 
-The own-price elasticity is −1.55 whichever standard errors are used; what changes is the
-uncertainty around it, and the classical Mundlak statistic overstates the evidence against
-random effects by a factor of about seven.
+The own-price elasticity is −1.55 under every variance estimator. The standard errors differ,
+and the classical Mundlak statistic is about seven times the clustered one.
 
 ## Examples
 
-| Example | What it shows | Time |
+| Example | Contents | Time |
 |---|---|---|
 | [`01_quickstart.do`](examples/01_quickstart.do) · [log](examples/01_quickstart.log) | the joint-projection regression on `auto`, three kinds of standard errors, the Mundlak test | seconds |
-| [`02_orange_juice.do`](examples/02_orange_juice.do) · [log](examples/02_orange_juice.log) | the paper's application on the Dominick's orange-juice panel: diagnostics, all five standard errors including the two that need the exact projector, the Mundlak test and a restricted test | about a minute |
+| [`02_orange_juice.do`](examples/02_orange_juice.do) · [log](examples/02_orange_juice.log) | the paper's application on the Dominick's orange-juice panel: diagnostics, the five standard errors, the Mundlak test and a restricted test | about a minute |
 | [`00_get_data.do`](examples/00_get_data.do) | fetches the orange-juice panel from CRAN and writes `data/orangeJuice.dta`; run by `02_orange_juice.do` the first time (needs R) | a minute |
 
 The logs were produced by the do-files as they stand, with `src/` on the adopath.
 
-## Options at a glance
+## Options
 
 | Option | Effect |
 |---|---|
 | `abs(varlist)` | the fixed-effect dimensions; required |
 | `jm` | one control per regressor, its joint projection (synonym `compact`); the default creates one control per regressor and dimension, with the same slopes |
-| `fevce(white)` | heteroskedasticity-robust standard errors: independent disturbances |
-| `fevce(union)` | clustered on all absorbed dimensions at once: components shared within any absorbed cell |
-| `fevce(cluster(varlist))` | clustered on overlapping dimensions of your choice, absorbed or not; clustering on the unit allows serial dependence within it |
-| `fevce(lc)`, `fevce(plugin)` | the leverage correction and the plug-in over the variance components; the largest dimension is absorbed exactly, so only the levels outside it count against `dcap()` |
+| `fevce(white)` | heteroskedasticity-robust standard errors, for independent disturbances |
+| `fevce(union)` | clustered on all absorbed dimensions at once, for components shared within any absorbed cell |
+| `fevce(cluster(varlist))` | clustered on overlapping dimensions of the user's choice, absorbed or not; clustering on the unit allows serial dependence within it |
+| `fevce(lc)`, `fevce(plugin)` | the leverage correction and the plug-in over the variance components; the largest dimension is absorbed exactly, so that only the levels outside it count against `dcap()` |
 | `pitest` | the Mundlak test, with `pirest()` and `pinull()` for a restricted hypothesis |
 | `nodiagnostics` | skip the support diagnostics and the Mundlak gap, overall and by regressor (`e(cre_gap_k)`) |
 
-`fevce()` and `pitest` require the wrapped command to be `regress`. Everything else works with
-any estimation command. See `help cre` for the details and for what each note
-in the output means.
+`fevce()` and `pitest` require the wrapped command to be `regress`. Every other option works
+with any estimation command. See `help cre` for the details and for the notes in the output.
 
 ## The data
 
 The paper's application uses the Dominick's orange-juice panel distributed with the R package
-`bayesm` (Rossi; GPL ≥ 2): 83 stores, 11 brands, 121 weeks, a real product × market × period
-panel with an irregular support, which is what the command is for. The files are not shipped;
+`bayesm` (Rossi; GPL ≥ 2): 83 stores, 11 brands, 121 weeks, a product × market × period panel
+with an irregular support. The files are not shipped;
 [`examples/00_get_data.do`](examples/00_get_data.do) fetches them from CRAN through R and
 writes the Stata files into [`data/`](data/), whose [README](data/README.md) gives the
 provenance and the attribution.

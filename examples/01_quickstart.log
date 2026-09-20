@@ -1,4 +1,3 @@
-
 . * 01_quickstart.do -- cre on Stata's auto data: the joint-projection regressi
 > on, three
 . * kinds of standard errors, and the Mundlak test.  Runs in a few seconds.
@@ -50,14 +49,13 @@ Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
 Note: the coefficients on the regressors equal the multiway fixed-effects
       (within) estimator on an irregular support.
-Note: the cell frequencies are not proportional, so dimension-wise means
+Note: the cell frequencies are not proportional, so that dimension-wise means
       (egen ..., by() for each dimension) would not reproduce the
       fixed-effects estimator; g_X is the share of the joint projection of
-      the regressors that they cannot span. By regressor, within / P x is the
-      part of the regressor that the fixed effects leave, relative to its
-      projection onto them, and the gap relative to that within variation is
-      what governs how far the dimension-wise estimates fall from the
-      fixed-effects ones.
+      the regressors that those means cannot span. By regressor, within / P x
+      is the part of the regressor that the fixed effects leave, relative to
+      its projection onto them, and gap / within governs how far the
+      dimension-wise estimates fall from the fixed-effects ones.
 
 . 
 . * 2. The same coefficients with standard errors that allow for components sha
@@ -75,9 +73,8 @@ Std. err.: multiway clustered on the absorbed dimensions; allows dependence
 Largest cluster = 27   max. degree of sharing = 36   Gbar^3 d/n = 5586
 Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 5586
       > 1). The clustered standard errors are asymptotically valid when this
-      quantity is small. That is a sufficient condition, not a necessary one,
-      so its failure does not show the standard errors to be invalid; it
-      means that their validity is not verified by this check.
+      quantity is small; the condition is sufficient and not necessary, so
+      their validity is not verified by this check.
 ------------------------------------------------------------------------------
              |              Multiway
          mpg | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -87,13 +84,13 @@ Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 5586
 ------------------------------------------------------------------------------
 Note: the clustered variance was not positive semidefinite (smallest
       eigenvalue of the meat -16.2); its negative eigenvalues were set to
-      zero. This can happen in finite samples when clusters overlap and
-      becomes rare as the sample grows.
+      zero. This happens in finite samples when clusters overlap and becomes
+      rare as the sample grows.
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
@@ -107,14 +104,13 @@ Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
 Note: the coefficients on the regressors equal the multiway fixed-effects
       (within) estimator on an irregular support.
-Note: the cell frequencies are not proportional, so dimension-wise means
+Note: the cell frequencies are not proportional, so that dimension-wise means
       (egen ..., by() for each dimension) would not reproduce the
       fixed-effects estimator; g_X is the share of the joint projection of
-      the regressors that they cannot span. By regressor, within / P x is the
-      part of the regressor that the fixed effects leave, relative to its
-      projection onto them, and the gap relative to that within variation is
-      what governs how far the dimension-wise estimates fall from the
-      fixed-effects ones.
+      the regressors that those means cannot span. By regressor, within / P x
+      is the part of the regressor that the fixed effects leave, relative to
+      its projection onto them, and gap / within governs how far the
+      dimension-wise estimates fall from the fixed-effects ones.
 
 . cre, jm fevce(white) abs(headroom trunk): regress mpg price foreign
 
@@ -133,9 +129,9 @@ Std. err.: heteroskedasticity-robust; valid when the disturbances are
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
@@ -149,14 +145,13 @@ Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
 Note: the coefficients on the regressors equal the multiway fixed-effects
       (within) estimator on an irregular support.
-Note: the cell frequencies are not proportional, so dimension-wise means
+Note: the cell frequencies are not proportional, so that dimension-wise means
       (egen ..., by() for each dimension) would not reproduce the
       fixed-effects estimator; g_X is the share of the joint projection of
-      the regressors that they cannot span. By regressor, within / P x is the
-      part of the regressor that the fixed effects leave, relative to its
-      projection onto them, and the gap relative to that within variation is
-      what governs how far the dimension-wise estimates fall from the
-      fixed-effects ones.
+      the regressors that those means cannot span. By regressor, within / P x
+      is the part of the regressor that the fixed effects leave, relative to
+      its projection onto them, and gap / within governs how far the
+      dimension-wise estimates fall from the fixed-effects ones.
 
 . 
 . * 3. Standard errors clustered on a variable that is not absorbed
@@ -171,9 +166,8 @@ Std. err.: multiway clustered on rep78; allows arbitrary dependence within a
 Largest cluster = 30   max. degree of sharing = 29   Gbar^3 d/n = 8217
 Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 8217
       > 1). The clustered standard errors are asymptotically valid when this
-      quantity is small. That is a sufficient condition, not a necessary one,
-      so its failure does not show the standard errors to be invalid; it
-      means that their validity is not verified by this check.
+      quantity is small; the condition is sufficient and not necessary, so
+      their validity is not verified by this check.
 ------------------------------------------------------------------------------
              |              Clustered
          mpg | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -183,9 +177,9 @@ Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 8217
 ------------------------------------------------------------------------------
 Note: the coefficients on the Mundlak controls and their classical standard
       errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard
-      errors are too small for the controls, whose coefficients converge at
-      the rate of the smallest absorbed dimension, not of the sample size.
-      Specify pitest for valid inference on them.
+      errors are too small, since the coefficients on the controls converge
+      at the rate of the smallest absorbed dimension and not of the sample
+      size; pitest gives valid inference on them.
 
 Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
@@ -199,14 +193,13 @@ Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
 Note: the coefficients on the regressors equal the multiway fixed-effects
       (within) estimator on an irregular support.
-Note: the cell frequencies are not proportional, so dimension-wise means
+Note: the cell frequencies are not proportional, so that dimension-wise means
       (egen ..., by() for each dimension) would not reproduce the
       fixed-effects estimator; g_X is the share of the joint projection of
-      the regressors that they cannot span. By regressor, within / P x is the
-      part of the regressor that the fixed effects leave, relative to its
-      projection onto them, and the gap relative to that within variation is
-      what governs how far the dimension-wise estimates fall from the
-      fixed-effects ones.
+      the regressors that those means cannot span. By regressor, within / P x
+      is the part of the regressor that the fixed effects leave, relative to
+      its projection onto them, and gap / within governs how far the
+      dimension-wise estimates fall from the fixed-effects ones.
 
 . 
 . * 4. The Mundlak test: are the regressors uncorrelated with the fixed effects
@@ -222,9 +215,8 @@ Std. err.: multiway clustered on the absorbed dimensions; allows dependence
 Largest cluster = 27   max. degree of sharing = 36   Gbar^3 d/n = 5586
 Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 5586
       > 1). The clustered standard errors are asymptotically valid when this
-      quantity is small. That is a sufficient condition, not a necessary one,
-      so its failure does not show the standard errors to be invalid; it
-      means that their validity is not verified by this check.
+      quantity is small; the condition is sufficient and not necessary, so
+      their validity is not verified by this check.
 ------------------------------------------------------------------------------
              |              Multiway
          mpg | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
@@ -236,8 +228,8 @@ Note: the largest cluster is large relative to the sample (Gbar^3 d/n = 5586
 ------------------------------------------------------------------------------
 Note: the clustered variance was not positive semidefinite (smallest
       eigenvalue of the meat -16.2); its negative eigenvalues were set to
-      zero. This can happen in finite samples when clusters overlap and
-      becomes rare as the sample grows.
+      zero. This happens in finite samples when clusters overlap and becomes
+      rare as the sample grows.
 The coefficients on the Mundlak controls (m_price m_foreign) are posted with
       standard errors clustered on the absorbed dimensions at the rate of the
       smallest one (N_* = 4); the covariance between the two blocks is set to
@@ -251,8 +243,8 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
     classical (pooled OLS)           chi2(2) =    11.66   Prob > chi2 = 0.0029
 -------------------------------------------------------------------------------
 Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows. The first statistic
-      is the valid one.
+      over-rejects, increasingly so as the sample grows; the clustered
+      statistic is the valid one.
 
 Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
@@ -266,14 +258,13 @@ Support diagnostics (compact controls)
 -------------------------------------------------------------------------------
 Note: the coefficients on the regressors equal the multiway fixed-effects
       (within) estimator on an irregular support.
-Note: the cell frequencies are not proportional, so dimension-wise means
+Note: the cell frequencies are not proportional, so that dimension-wise means
       (egen ..., by() for each dimension) would not reproduce the
       fixed-effects estimator; g_X is the share of the joint projection of
-      the regressors that they cannot span. By regressor, within / P x is the
-      part of the regressor that the fixed effects leave, relative to its
-      projection onto them, and the gap relative to that within variation is
-      what governs how far the dimension-wise estimates fall from the
-      fixed-effects ones.
+      the regressors that those means cannot span. By regressor, within / P x
+      is the part of the regressor that the fixed effects leave, relative to
+      its projection onto them, and gap / within governs how far the
+      dimension-wise estimates fall from the fixed-effects ones.
 
 . 
 end of do-file
