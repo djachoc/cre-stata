@@ -11,7 +11,7 @@ d
 d Requires: reghdfe, ftools
 d
 d Authors: Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
-d Distribution-Date: 20260907
+d Distribution-Date: 20260920
 d
 f cre.ado
 f cre_diag.ado

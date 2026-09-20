@@ -1,4 +1,4 @@
-*! version 0.1.0  07Sep2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
+*! version 0.1.1  20Sep2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * The Mundlak test of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
 * (2026), the correlated-effects coefficient section.  With Z = P_[Delta] X the
@@ -8,11 +8,11 @@
 *   Upsilon = (N_* / n^2) sum_{A} (-1)^{|A|+1} sum_t g_t^(A) g_t^(A)',  g_t^(A) = sum_{o in t} zt_o u_o,
 *   Psi     = Zt'Zt / n,      V_pi = N_*^-1 Psi^-1 Upsilon Psi^-1,
 * with the eigenvalue truncation of an indefinite Upsilon and the Wald statistic
-* for H_0: pi = 0 set to zero when V_pi is not positive definite.  The
-* dimension-wise sum (the |A| = 1 terms only, positive semidefinite by
-* construction, counts shared pairs more than once) and the classical pooled-OLS
-* Wald statistic, whose standard errors are of the wrong order for pi, are
-* returned for comparison.  No n x n object is formed.
+* for H_0: pi = 0 set to zero when V_pi is not positive definite.  The classical
+* pooled-OLS Wald statistic, whose standard errors are of the wrong order for pi,
+* is returned for comparison.  No n x n object is formed.
+* 0.1.1 (2026-09-20): the dimension-wise sum (the |A| = 1 terms only), which the
+* paper no longer reports, is no longer computed or returned.
 program cre_pitest, rclass
 	syntax [if] [in], abs(varlist) xf(varlist) px(varlist) y(varname) [rvec(numlist) rmat(name)]
 	marksample touse
@@ -44,15 +44,13 @@ program cre_pitest, rclass
 	return matrix R = `R'
 	return matrix rvec = `rv'
 	return scalar custom = `custom'
-	tempname pi V Vd
+	tempname pi V
 	matrix `pi' = __cre_pi
 	matrix `V' = __cre_Vpi
-	matrix `Vd' = __cre_Vpi_dim
-	matrix drop __cre_pi __cre_Vpi __cre_Vpi_dim
+	matrix drop __cre_pi __cre_Vpi
 	return matrix pi = `pi'
 	return matrix V_pi = `V'
-	return matrix V_pi_dim = `Vd'
-	foreach s in n N_ast q df wald p pd trunc mineig wald_dim p_dim pd_dim wald_conv p_conv sigma2_pooled {
+	foreach s in n N_ast q df wald p pd trunc mineig wald_conv p_conv sigma2_pooled {
 		return scalar `s' = scalar(__cre_`s')
 		scalar drop __cre_`s'
 	}
@@ -67,11 +65,11 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 {
 	class Factor scalar F
 	string rowvector fev
-	real matrix X, Z, C0, C1, Zt, S, L, meat, meatd, Ups, Upsd, Psi, Psii, Vpi, Vpid, EV, Sg
+	real matrix X, Z, C0, C1, Zt, S, L, meat, Ups, Psi, Psii, Vpi, EV, Sg
 	real matrix R, Vr, Vc
 	real colvector y, u, pi, ev, rv, dif
 	real rowvector A, evr, sv
-	real scalar n, K, M, m, s, bit, sgn, Nast, W, p, pd, trunc, mineig, Wd, pdd, Wc, sig2, df
+	real scalar n, K, M, m, s, bit, sgn, Nast, W, p, pd, trunc, mineig, Wc, sig2, df
 
 	fev = tokens(fes)
 	M = cols(fev)
@@ -96,7 +94,6 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		Nast = min((Nast, F.num_levels))
 	}
 	meat = J(K, K, 0)
-	meatd = J(K, K, 0)
 	for (s = 1; s < 2^M; s++) {
 		A = J(1, 0, .)
 		for (m = 1; m <= M; m++) {
@@ -108,10 +105,8 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		F.panelsetup()
 		Sg = panelsum(F.sort(S), F.info)
 		meat = meat + sgn * cross(Sg, Sg)
-		if (cols(A) == 1) meatd = meatd + cross(Sg, Sg)
 	}
 	Ups = (Nast / n^2) * meat
-	Upsd = (Nast / n^2) * meatd
 	evr = symeigenvalues(Ups)
 	mineig = min(evr)
 	trunc = 0
@@ -125,8 +120,6 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	Psii = invsym(Psi)
 	Vpi = Psii * Ups * Psii / Nast
 	Vpi = (Vpi + Vpi') / 2
-	Vpid = Psii * Upsd * Psii / Nast
-	Vpid = (Vpid + Vpid') / 2
 
 	// Wald statistics for H_0: R pi = r, set to zero off {R V R' > 0}
 	R = st_matrix(Rname)
@@ -143,10 +136,6 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	pd = (min(ev) > 1e-12 * max((max(ev), 1e-300)))
 	W = (pd ? dif' * invsym(Vr) * dif : 0)
 	p = (pd ? chi2tail(df, W) : .)
-	Vr = R * Vpid * R'
-	ev = symeigenvalues(Vr)'
-	pdd = (min(ev) > 1e-12 * max((max(ev), 1e-300)))
-	Wd = (pdd ? dif' * invsym(Vr) * dif : 0)
 	// classical pooled OLS: V_pool(pi) = sigma^2 (Zt'Zt)^-1 by Frisch-Waugh-Lovell
 	sig2 = cross(u, u) / (n - cols(C1))
 	Vc = sig2 * R * invsym(cross(Zt, Zt)) * R'
@@ -154,7 +143,6 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 
 	st_matrix("__cre_pi", pi')
 	st_matrix("__cre_Vpi", Vpi)
-	st_matrix("__cre_Vpi_dim", Vpid)
 	st_numscalar("__cre_n", n)
 	st_numscalar("__cre_N_ast", Nast)
 	st_numscalar("__cre_q", K)
@@ -164,9 +152,6 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	st_numscalar("__cre_pd", pd)
 	st_numscalar("__cre_trunc", trunc)
 	st_numscalar("__cre_mineig", mineig)
-	st_numscalar("__cre_wald_dim", Wd)
-	st_numscalar("__cre_p_dim", (pdd ? chi2tail(df, Wd) : .))
-	st_numscalar("__cre_pd_dim", pdd)
 	st_numscalar("__cre_wald_conv", Wc)
 	st_numscalar("__cre_p_conv", chi2tail(df, Wc))
 	st_numscalar("__cre_sigma2_pooled", sig2)

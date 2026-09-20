@@ -1,5 +1,13 @@
 # cre changelog
 
+## 0.1.1 (alpha, 2026-09-20)
+
+- `pitest` no longer computes, posts or displays the dimension-wise comparator (the variance
+  formed by clustering on each absorbed dimension in turn and adding, `e(cre_V_pi_dim)`,
+  `e(cre_pi_wald_dim)`, `e(cre_pi_p_dim)`, `e(cre_pi_pd_dim)`), which the paper no longer
+  reports. The Mundlak test with the variance clustered on all absorbed dimensions at once and
+  the classical pooled-OLS comparator are unchanged.
+
 ## 0.1.0 (alpha, 2026-09-07)
 
 First public release, by Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison
