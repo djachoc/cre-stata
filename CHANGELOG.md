@@ -1,5 +1,11 @@
 # cre changelog
 
+## 0.1.2 (alpha, 2026-09-21)
+
+- The README, the help file and the notes in the output are shortened; the help file no longer
+  describes the dimension-wise comparator that 0.1.1 removed, and `e(cre_version)` now reads
+  `0.1.2` (it had stayed at `0.1.0`). No change to any computation.
+
 ## 0.1.1 (alpha, 2026-09-20)
 
 - `pitest` no longer computes, posts or displays the dimension-wise comparator (the variance

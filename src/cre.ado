@@ -1,5 +1,6 @@
-*! version 0.1.1  20Sep2026  cre: correlated random effects by joint projection, with support diagnostics
+*! version 0.1.2  21Sep2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
+* v0.1.2  (alpha) the notes in the output, the help file and the README shortened
 * v0.1.1  (alpha) pitest no longer computes or posts the dimension-wise comparator
 *         (e(cre_V_pi_dim), e(cre_pi_*_dim)), which the paper no longer reports
 * v0.1.0  (alpha) first public release: the joint-projection controls of the cre prefix
@@ -278,7 +279,7 @@ program define cre, properties(prefix)
 			}
 		}
 		adde local m_list `vlist'
-		adde local cre_version "0.1.0"
+		adde local cre_version "0.1.2"
 		if "`compact'"!="" adde local cre_branch "compact"
 		else adde local cre_branch "components"
 		adde local cre_fe `felist'
@@ -515,7 +516,7 @@ program cre_display_est
 	}
 	if e(cre_Gbar3dn)<. & e(cre_Gbar3dn)>1 {
 		local sc = strtrim(string(e(cre_Gbar3dn), "%9.3g"))
-		di as txt "{p 0 6 2}Note: the largest cluster is large relative to the sample (Gbar^3 d/n = `sc' > 1). The clustered standard errors are asymptotically valid when this quantity is small. That is a sufficient condition, not a necessary one, so its failure does not show the standard errors to be invalid; it means that their validity is not verified by this check.{p_end}"
+		di as txt "{p 0 6 2}Note: the largest cluster is large relative to the sample (Gbar^3 d/n = `sc' > 1). The clustered standard errors are asymptotically valid when this quantity is small; the condition is sufficient and not necessary, so their validity is not verified by this check.{p_end}"
 	}
 	if "`kind'"=="lc" {
 		di as txt "min R_oo = " as res %-8.3g e(cre_Rmin) ///
@@ -543,19 +544,19 @@ program cre_display_est
 		}
 		di as txt "{p 0 21 2}Variance components: " as res "`ths'" as txt "{p_end}"
 		if e(cre_ncol_A)==1 {
-			di as txt "{p 0 6 2}Note: no pair of observations shares a cell of two or more absorbed dimensions, so no interaction variance is identified and the plug-in reduces to the homoskedastic sandwich sbar^2 (Xt'Xt)^-1.{p_end}"
+			di as txt "{p 0 6 2}Note: no two observations share a cell of two or more absorbed dimensions, so that no interaction variance is identified and the plug-in reduces to the homoskedastic sandwich sbar^2 (Xt'Xt)^-1.{p_end}"
 		}
 	}
 	ereturn display
 	if e(cre_trunc)==1 {
 		local me = strtrim(string(e(cre_meat_mineig), "%9.3g"))
-		di as txt "{p 0 6 2}Note: the clustered variance was not positive semidefinite (smallest eigenvalue of the meat `me'); its negative eigenvalues were set to zero. This can happen in finite samples when clusters overlap and becomes rare as the sample grows.{p_end}"
+		di as txt "{p 0 6 2}Note: the clustered variance was not positive semidefinite (smallest eigenvalue of the meat `me'); its negative eigenvalues were set to zero. This happens in finite samples when clusters overlap and becomes rare as the sample grows.{p_end}"
 	}
 	if e(cre_V_pd)==0 {
 		di as txt "{p 0 6 2}Note: the posted variance matrix is not positive definite; Wald statistics computed from it are reported as zero.{p_end}"
 	}
 	if "`e(cre_pitest)'"=="" {
-		di as txt "{p 0 6 2}Note: the coefficients on the Mundlak controls and their classical standard errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small for the controls, whose coefficients converge at the rate of the smallest absorbed dimension, not of the sample size. Specify pitest for valid inference on them.{p_end}"
+		di as txt "{p 0 6 2}Note: the coefficients on the Mundlak controls and their classical standard errors are in e(cre_b_pooled) and e(cre_V_pooled). Those standard errors are too small, since the coefficients on the controls converge at the rate of the smallest absorbed dimension and not of the sample size; pitest gives valid inference on them.{p_end}"
 	}
 	else {
 		local q = e(cre_pi_df)
@@ -579,7 +580,7 @@ program cre_display_est
 		   _col(38) "chi2(`q') = " as res %8.2f e(cre_pi_wald_conv) ///
 		   as txt "   Prob > chi2 = " as res %6.4f e(cre_pi_p_conv)
 		di as txt "{hline 79}"
-		di as txt "{p 0 6 2}Note: the classical statistic uses standard errors of the wrong order and over-rejects, increasingly so as the sample grows. The first statistic is the valid one.{p_end}"
+		di as txt "{p 0 6 2}Note: the classical statistic uses standard errors of the wrong order and over-rejects, increasingly so as the sample grows; the clustered statistic is the valid one.{p_end}"
 		if e(cre_pi_trunc)==1 {
 			local me = strtrim(string(e(cre_pi_mineig), "%9.3g"))
 			di as txt "{p 0 6 2}Note: the clustered variance of the controls was not positive semidefinite (smallest eigenvalue `me'); its negative eigenvalues were set to zero.{p_end}"
@@ -630,13 +631,13 @@ program cre_display
 	di as txt "{hline 79}"
 	di as txt "{p 0 6 2}Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on an irregular support.{p_end}"
 	if e(cre_proportional)==1 {
-		di as txt "{p 0 6 2}Note: the cell frequencies are proportional, so dimension-wise means (egen ..., by() for each dimension) would also reproduce the fixed-effects estimator here.{p_end}"
+		di as txt "{p 0 6 2}Note: the cell frequencies are proportional, so that dimension-wise means (egen ..., by() for each dimension) would also reproduce the fixed-effects estimator here.{p_end}"
 	}
 	else {
-		di as txt "{p 0 6 2}Note: the cell frequencies are not proportional, so dimension-wise means (egen ..., by() for each dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint projection of the regressors that they cannot span. By regressor, within / P x is the part of the regressor that the fixed effects leave, relative to its projection onto them, and the gap relative to that within variation is what governs how far the dimension-wise estimates fall from the fixed-effects ones.{p_end}"
+		di as txt "{p 0 6 2}Note: the cell frequencies are not proportional, so that dimension-wise means (egen ..., by() for each dimension) would not reproduce the fixed-effects estimator; g_X is the share of the joint projection of the regressors that those means cannot span. By regressor, within / P x is the part of the regressor that the fixed effects leave, relative to its projection onto them, and gap / within governs how far the dimension-wise estimates fall from the fixed-effects ones.{p_end}"
 	}
 	if e(cre_d_exact)==0 {
-		di as txt "{p 0 6 2}Note: the rank of the fixed-effect design was taken from reghdfe, which can overstate it with three or more dimensions; raise dcap() for the exact rank.{p_end}"
+		di as txt "{p 0 6 2}Note: the rank of the fixed-effect design was taken from reghdfe, which can overstate it with three or more dimensions; raise dcap() to compute it exactly.{p_end}"
 	}
 	if e(cre_connected)==0 {
 		di as txt "{p 0 6 2}Note: the support graph is not connected; the fixed effects are identified only up to one constant per connected component, which the within transformation handles.{p_end}"
