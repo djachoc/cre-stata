@@ -154,6 +154,10 @@ provenance and the attribution.
 }
 ```
 
+The theoretical results of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
+(2026) are formalized in Lean 4 at
+[`multiway-mundlak-lean`](https://github.com/djachoc/multiway-mundlak-lean).
+
 ## Authors
 
 - [Fernando Rios-Avila](https://friosavila.github.io/), Universidad Privada Boliviana and London School of Economics and Political Science
