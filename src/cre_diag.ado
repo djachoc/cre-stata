@@ -175,7 +175,7 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		// by regressor: the gap relative to P_[Delta] x_k; the within variation
 		// relative to the projection, ||Q x_k|| / ||P x_k||, the part of the
 		// regressor that the fixed effects leave; and the gap relative to that
-		// within variation, ||G_k|| / ||Q x_k||, which is what governs how far
+		// within variation, ||G_k|| / ||Q x_k||, which governs how far
 		// the dimension-wise estimates are from the fixed-effects ones
 		QX = X - PX
 		gk = sqrt(colsum(G :* G)) :/ sqrt(colsum(PX :* PX))
