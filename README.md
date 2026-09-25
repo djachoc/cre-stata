@@ -154,6 +154,7 @@ provenance and the attribution.
 }
 ```
 
+<a href="https://lean-lang.org"><img src="assets/lean-logo.svg" alt="Lean" height="30" align="absmiddle"></a>
 The theoretical results of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
 (2026) are formalized in Lean 4 at
 [`multiway-mundlak-lean`](https://github.com/djachoc/multiway-mundlak-lean).
