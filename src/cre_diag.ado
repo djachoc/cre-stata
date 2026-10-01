@@ -1,4 +1,4 @@
-*! version 0.1.0  07Sep2026  cre_diag: support diagnostics for cre (Mata; needs ftools)
+*! version 0.1.3  30Sep2026  cre_diag: support diagnostics for cre (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * Kept in its own file so that the Mata class Factor (ftools) is resolved when
 * this file is first loaded, after cre.ado has run -ftools, check-.
@@ -11,7 +11,7 @@
 * connected, whether the pairwise cell frequencies are proportional (the
 * condition under which dimension-wise means reproduce the fixed-effects
 * estimator), the largest joint cell c_max, the largest pairwise cell c2_max,
-* the largest category G_max, and the normalized Mundlak gap g_X, the share of
+* the largest category G_max, and the normalized Mundlak Gap g_X, the share of
 * the joint projection of the regressors that dimension-wise means cannot span,
 * with, by regressor, the gap, the within variation relative to the projection
 * and the gap relative to that within variation.
@@ -153,7 +153,7 @@ void cre_diag_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	}
 	connected = (d == D - (M - 1))
 
-	// the normalized Mundlak gap: the part of P_[Delta] X outside the span of
+	// the normalized Mundlak Gap: the part of P_[Delta] X outside the span of
 	// the dimension-wise means and the constant, relative to P_[Delta] X
 	gX = .
 	gapk = J(3, 1, .)

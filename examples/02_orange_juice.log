@@ -65,7 +65,7 @@
 . label var bw        "brand x week"
 
 . 
-. * 1. The correlated random-effects regression and the support diagnostics.  T
+. * 1. The correlated-random-effects regression and the support diagnostics.  T
 > he slopes are
 . *    the three-way fixed-effects estimates; the diagnostics say that the cell
 >  frequencies are
@@ -104,7 +104,7 @@ Support diagnostics (compact controls)
   n = 106139   M = 3   N_m = 913 9649 1331   N_* = 913
   d_[Delta] = 11679 (exact)   d/n = 0.1100   connected: no
   proportional cell frequencies: no  (max deviation .993)
-  c_max = 1   c2_max = 1   G_max = 121   Mundlak gap g_X = 0.0111
+  c_max = 1   c2_max = 1   G_max = 121   Mundlak Gap g_X = 0.0111
   by regressor:              gap       within / P x    gap / within
     lprice                0.0057         0.0147           0.389
     lp_prem               0.0052         0.0028           1.876
@@ -114,7 +114,7 @@ Support diagnostics (compact controls)
     feat                  0.0066         0.0199           0.330
 -------------------------------------------------------------------------------
 Note: the coefficients on the regressors equal the multiway fixed-effects
-      (within) estimator on an irregular support.
+      (within) estimator on any observation structure.
 Note: the cell frequencies are not proportional, so that dimension-wise means
       (egen ..., by() for each dimension) would not reproduce the
       fixed-effects estimator; g_X is the share of the joint projection of
@@ -208,7 +208,7 @@ Note: the support graph is not connected; the fixed effects are identified
 . cre, jm fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_p
 > rem lp_nat lp_sto deal feat
 
-Correlated random-effects regression         Number of obs       =      106,139
+Correlated-random-effects regression         Number of obs       =      106,139
 Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
 Absorbed dimensions: sb storeweek bw
 Std. err.: multiway clustered on the absorbed dimensions; allows dependence
@@ -239,7 +239,7 @@ Note: the coefficients on the Mundlak controls and their classical standard
 . cre, jm fevce(white) nodiag abs(sb storeweek bw): regress logmove lprice lp_p
 > rem lp_nat lp_sto deal feat
 
-Correlated random-effects regression         Number of obs       =      106,139
+Correlated-random-effects regression         Number of obs       =      106,139
 Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
 Absorbed dimensions: sb storeweek bw
 Std. err.: heteroskedasticity-robust; valid when the disturbances are
@@ -271,7 +271,7 @@ Note: the coefficients on the Mundlak controls and their classical standard
 . cre, jm fevce(lc) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem
 >  lp_nat lp_sto deal feat
 
-Correlated random-effects regression         Number of obs       =      106,139
+Correlated-random-effects regression         Number of obs       =      106,139
 Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,679
 Absorbed dimensions: sb storeweek bw
 Std. err.: leverage-corrected robust; exact when the disturbances are
@@ -298,7 +298,7 @@ Note: the coefficients on the Mundlak controls and their classical standard
 . cre, jm fevce(plugin) nodiag abs(sb storeweek bw): regress logmove lprice lp_
 > prem lp_nat lp_sto deal feat
 
-Correlated random-effects regression         Number of obs       =      106,139
+Correlated-random-effects regression         Number of obs       =      106,139
 Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,679
 Absorbed dimensions: sb storeweek bw
 Std. err.: plug-in from the interaction variance components; allows shared
@@ -335,7 +335,7 @@ Note: the coefficients on the Mundlak controls and their classical standard
 . cre, jm fevce(cluster(store week)) nodiag abs(sb storeweek bw): regress logmo
 > ve lprice lp_prem lp_nat lp_sto deal feat
 
-Correlated random-effects regression         Number of obs       =      106,139
+Correlated-random-effects regression         Number of obs       =      106,139
 Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
 Absorbed dimensions: sb storeweek bw
 Std. err.: multiway clustered on store week; allows arbitrary dependence
@@ -365,13 +365,11 @@ Note: the coefficients on the Mundlak controls and their classical standard
       size; pitest gives valid inference on them.
 
 . 
-. * 4. The Mundlak test that the regressors are uncorrelated with the fixed eff
-> ects, with its
-. *    two comparators
+. * 4. The Wald test of no correlated effects, with its classical comparator
 . cre, jm pitest fevce(union) nodiag abs(sb storeweek bw): regress logmove lpri
 > ce lp_prem lp_nat lp_sto deal feat
 
-Correlated random-effects regression         Number of obs       =      106,139
+Correlated-random-effects regression         Number of obs       =      106,139
 Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
 Absorbed dimensions: sb storeweek bw
 Std. err.: multiway clustered on the absorbed dimensions; allows dependence
@@ -399,12 +397,12 @@ Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
       m_deal |   .2693586   .0642789     4.19   0.000     .1433743    .3953429
       m_feat |   .8657607   .3404322     2.54   0.011     .1985258    1.532996
 ------------------------------------------------------------------------------
-The coefficients on the Mundlak controls (m_lprice m_lp_prem m_lp_nat
-      m_lp_sto m_deal m_feat) are posted with standard errors clustered on
-      the absorbed dimensions at the rate of the smallest one (N_* = 913);
-      the covariance between the two blocks is set to zero.
+The correlated-effects coefficients, on the joint Mundlak controls (m_lprice
+      m_lp_prem m_lp_nat m_lp_sto m_deal m_feat), are posted with standard
+      errors clustered on the absorbed dimensions at the rate of the smallest
+      one (N_* = 913); the covariance between the two blocks is set to zero.
 
-Mundlak test (coefficients on the Mundlak controls = 0)
+Wald test of no correlated effects (correlated-effects coefficients = 0)
 H0: regressors uncorrelated with the fixed effects (random effects consistent)
 -------------------------------------------------------------------------------
   clustered on absorbed dimensions   chi2(6) =    77.36   Prob > chi2 = 0.0000
@@ -422,7 +420,7 @@ Note: the classical statistic uses standard errors of the wrong order and
 . cre, jm pitest pirest(R1) fevce(union) nodiag abs(sb storeweek bw): regress l
 > ogmove lprice lp_prem lp_nat lp_sto deal feat
 
-Correlated random-effects regression         Number of obs       =      106,139
+Correlated-random-effects regression         Number of obs       =      106,139
 Slopes: multiway fixed-effects estimates     Rank of FE design   =       11,689
 Absorbed dimensions: sb storeweek bw
 Std. err.: multiway clustered on the absorbed dimensions; allows dependence
@@ -450,13 +448,13 @@ Note: the largest cluster is large relative to the sample (Gbar^3 d/n =
       m_deal |   .2693586   .0642789     4.19   0.000     .1433743    .3953429
       m_feat |   .8657607   .3404322     2.54   0.011     .1985258    1.532996
 ------------------------------------------------------------------------------
-The coefficients on the Mundlak controls (m_lprice m_lp_prem m_lp_nat
-      m_lp_sto m_deal m_feat) are posted with standard errors clustered on
-      the absorbed dimensions at the rate of the smallest one (N_* = 913);
-      the covariance between the two blocks is set to zero.
+The correlated-effects coefficients, on the joint Mundlak controls (m_lprice
+      m_lp_prem m_lp_nat m_lp_sto m_deal m_feat), are posted with standard
+      errors clustered on the absorbed dimensions at the rate of the smallest
+      one (N_* = 913); the covariance between the two blocks is set to zero.
 
-Test of H0: R pi = r on the Mundlak controls (R in e(cre_pi_R), r in e(cre_pi_r
-> ))
+Test of H0: R pi = r on the correlated-effects coefficients (R in e(cre_pi_R), 
+> r in e(cre_pi_r))
 -------------------------------------------------------------------------------
   clustered on absorbed dimensions   chi2(1) =     2.73   Prob > chi2 = 0.0987
   for comparison:

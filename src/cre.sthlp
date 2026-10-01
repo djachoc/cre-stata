@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.1.2 21sep2026}{...}
+{* *! version 0.1.3 30sep2026}{...}
 {cmd:help cre}
 {hline}
 
@@ -7,7 +7,7 @@
 {title:Title}
 
 {p2colset 5 12 14 2}{...}
-{p2col :{hi:cre} {hline 2}}Correlated random-effects regression with multiway fixed effects on an irregular support{p_end}
+{p2col :{hi:cre} {hline 2}}Correlated-random-effects regression with multiway fixed effects on an irregular support{p_end}
 {p2colreset}{...}
 
 
@@ -39,13 +39,13 @@
 {syntab:SE/Robust (wrapped command must be {cmd:regress})}
 {synopt:{opt fevce(vcetype)}}{it:vcetype} may be {opt white}, {opt lc}, {opt union}, {opt plugin}, or {opt cluster(varlist)}{p_end}
 
-{syntab:Mundlak test (wrapped command must be {cmd:regress})}
-{synopt:{opt pitest}}test that the regressors are uncorrelated with the fixed effects; requires {opt jm}{p_end}
+{syntab:Test of no correlated effects (wrapped command must be {cmd:regress})}
+{synopt:{opt pitest}}Wald test that the correlated-effects coefficients are zero; requires {opt jm}{p_end}
 {synopt:{opt pirest(matname)}}restriction matrix R for the test of R pi = r; default is the identity{p_end}
 {synopt:{opt pinull(numlist)}}hypothesized value r; default is zero{p_end}
 
 {syntab:Diagnostics and computation}
-{synopt:{opt nodiag:nostics}}do not report the support diagnostics and the Mundlak gap{p_end}
+{synopt:{opt nodiag:nostics}}do not report the support diagnostics and the Mundlak Gap{p_end}
 {synopt:{opt dcap(#)}}largest number of fixed-effect levels outside the largest dimension for which the rank of the design and the exact projector are computed; default is 10000{p_end}
 {synopt:{opt memcap(#)}}memory limit, in doubles, of the plug-in estimator's grouped pass; default is 5e7{p_end}
 {synoptline}
@@ -62,7 +62,7 @@
 {title:Description}
 
 {pstd}
-{cmd:cre} fits correlated random-effects (Mundlak) regressions with any number of fixed-effect
+{cmd:cre} fits correlated-random-effects (Mundlak) regressions with any number of fixed-effect
 dimensions, on balanced panels and on irregular supports. In the model
 
 {pstd}{space 4}y = x'b + a_1(i_1) + ... + a_M(i_M) + e,
@@ -72,23 +72,22 @@ where observation o belongs to category i_m(o) of each of the M dimensions, {cmd
 for every regressor a control spanning its projection onto the joint span of the fixed effects,
 appends the controls to the regressor list, and runs the wrapped estimation command. When the
 wrapped command is {helpb regress}, the coefficients on the regressors equal those of the
-multiway fixed-effects (within) estimator on any support and for any number of dimensions
-(Harrison, Canavire Bacarreza, Jacho-Chavez, and Rios-Avila 2026). This is the multiway
+multiway fixed-effects (within) estimator on any observation structure and in any number of
+dimensions (Harrison, Canavire Bacarreza, Jacho-Chavez, and Rios-Avila 2026). This is the multiway
 counterpart of the Mundlak equivalence behind {helpb xtreg}{cmd:, cre} (Mundlak 1978;
 Wooldridge 2019), where the panel means of the regressors are the controls. With two or more
 dimensions, the means of the regressors along each dimension reproduce the fixed-effects
 estimator only when the cell frequencies are proportional, which on a two-way panel requires a
-complete panel; otherwise they miss part of the joint projection, the Mundlak gap, which
+complete panel; otherwise they miss part of the joint projection, the Mundlak Gap, which
 {cmd:cre} reports after every run.
 
 {pstd}
 For a wrapped {helpb regress}, {cmd:cre} also provides standard errors that allow for the
-dependence a multiway panel induces ({opt fevce()}) and the Mundlak test that the regressors are
-uncorrelated with the fixed effects ({opt pitest}), the counterpart of the test reported by
-{helpb xtreg}{cmd:, cre} and {helpb estat mundlak} for one-way panels. The correlated
-random-effects form carries over to nonlinear models, in which the fixed effects cannot be
-removed by a transformation; {cmd:cre} wraps any such command, but {opt fevce()} and
-{opt pitest} apply to the linear model only.
+dependence a multiway panel induces ({opt fevce()}) and the Wald test of no correlated effects
+({opt pitest}), the counterpart of the test reported by {helpb xtreg}{cmd:, cre} and
+{helpb estat mundlak} for one-way panels. The correlated-random-effects form carries over to
+nonlinear models, in which the fixed effects cannot be removed by a transformation; {cmd:cre}
+wraps any such command, but {opt fevce()} and {opt pitest} apply to the linear model only.
 
 
 {marker options}{...}
@@ -104,8 +103,8 @@ one category of each dimension. Singleton observations are part of the support u
 {phang}
 {opt jm} or {opt compact} creates one control per regressor, named {it:prefix}{cmd:_}{it:var}
 and equal to the projection of the regressor onto the joint span of all absorbed dimensions,
-computed as the regressor minus its {helpb reghdfe} residual. Its coefficient measures the
-correlation between the regressor and the fixed effects, and {opt pitest} tests it. Without
+computed as the regressor minus its {helpb reghdfe} residual. Its coefficient is the
+correlated-effects coefficient of the regressor, which {opt pitest} tests. Without
 {opt jm}, {cmd:cre} creates M controls per regressor, {it:prefix}{cmd:#_}{it:var}, the
 estimated fixed-effect components of that projection, which sum to it up to a constant; the
 coefficients on the regressors are the same under either form.
@@ -180,26 +179,27 @@ has its negative eigenvalues set to zero, and the output says so. When the poste
 matrix is not positive definite, Wald statistics computed from it are reported as zero;
 {cmd:test} uses a generalized inverse instead, so check {cmd:e(cre_V_pd)} first.
 
-{dlgtab:Mundlak test}
+{dlgtab:Test of no correlated effects}
 
 {phang}
-{opt pitest} tests the null hypothesis that the regressors are uncorrelated with the fixed
-effects, that is, that all coefficients on the controls are zero; under the null a
-random-effects treatment of the fixed effects is consistent. It is the counterpart, for two or
-more absorbed dimensions and an irregular support, of the Mundlak test that {helpb xtreg}{cmd:, cre}
-reports and {helpb estat mundlak} performs after one-way panel estimation. The coefficients on
-the controls converge at the rate of the smallest absorbed dimension rather than of the sample
-size, so that the classical standard errors of the pooled regression are too small for them and
-the classical Wald statistic over-rejects, increasingly so as the sample grows. {opt pitest}
-posts the coefficients on the controls beside those on the regressors, with a variance
+{opt pitest} tests the null hypothesis of no correlated effects, that is, that all
+correlated-effects coefficients are zero; under the null a random-effects treatment of the fixed
+effects is consistent. It is the counterpart, for two or more absorbed dimensions and an
+irregular support, of the regression-based Hausman test of Wooldridge (2019), which
+{helpb xtreg}{cmd:, cre} reports and {helpb estat mundlak} performs after one-way panel
+estimation. The
+correlated-effects coefficients converge at the rate of the smallest absorbed dimension rather
+than of the sample size, so that the classical standard errors of the pooled regression are too
+small for them and the classical Wald statistic over-rejects, increasingly so as the sample
+grows. {opt pitest} posts them beside the coefficients on the regressors, with a variance
 clustered on all absorbed dimensions at once and scaled at the right rate, the covariance
-between the two blocks being set to zero, and reports the Mundlak test with this variance
-together with the classical statistic for comparison. Requires {opt jm}; without {opt fevce()},
-the coefficients on the regressors are posted with {opt white}.
+between the two blocks being set to zero, and reports the test with this variance together with
+the classical statistic for comparison. Requires {opt jm}; without {opt fevce()}, the
+coefficients on the regressors are posted with {opt white}.
 
 {phang}
 {opt pirest(matname)} and {opt pinull(numlist)} test the restriction R pi = r on the vector pi of
-coefficients on the controls, with R the matrix in {it:matname}, one column per regressor and
+correlated-effects coefficients, with R the matrix in {it:matname}, one column per regressor and
 of full row rank, and r the values in {it:numlist}, one per row of R. Either may be given alone;
 the default R is the identity and the default r is zero. R and r are stored in
 {cmd:e(cre_pi_R)} and {cmd:e(cre_pi_r)}.
@@ -207,12 +207,12 @@ the default R is the identity and the default r is zero. R and r are stored in
 {dlgtab:Diagnostics and computation}
 
 {phang}
-{opt nodiagnostics} suppresses the support diagnostics and the Mundlak gap. Without it, and for
+{opt nodiagnostics} suppresses the support diagnostics and the Mundlak Gap. Without it, and for
 any wrapped command, {cmd:cre} reports the number of observations, the number of dimensions,
 the number of categories of each dimension and the smallest of them, the rank of the
 fixed-effect design and its ratio to the sample size, whether the support graph is connected,
 whether every pair of dimensions has proportional cell frequencies, the largest cell, the
-largest pairwise cell, the largest category, and the Mundlak gap, the share of the joint
+largest pairwise cell, the largest category, and the Mundlak Gap, the share of the joint
 projection of the regressors that dimension-wise means cannot span, which is zero exactly when
 those means reproduce the fixed-effects estimator. By regressor it reports the gap, the within
 variation of the regressor relative to its projection onto the fixed effects, and the gap
@@ -243,7 +243,7 @@ regressors. The default is 5e7, about 400 MB.
 Remarks are presented under the following headings:
 
 {phang2}{help cre##r1:Which standard errors}{p_end}
-{phang2}{help cre##r2:The Mundlak test}{p_end}
+{phang2}{help cre##r2:The test of no correlated effects}{p_end}
 {phang2}{help cre##r3:The notes in the output}{p_end}
 {phang2}{help cre##r4:Computation}{p_end}
 
@@ -263,18 +263,18 @@ on the dimensions along which shocks are shared are the estimators of interest, 
 is the benchmark that ignores every shared component.
 
 {marker r2}{...}
-{title:The Mundlak test}
+{title:The test of no correlated effects}
 
 {pstd}
 {helpb xtreg}{cmd:, cre} reports "Mundlak test (xt_means = 0)", the Wald test that the
 coefficients on the panel means are zero, with a variance clustered on the panel identifier,
 which is valid whatever the dependence within a panel unit (Wooldridge 2019). With two or more
-absorbed dimensions the coefficients on the controls converge at the rate of the smallest
+absorbed dimensions the correlated-effects coefficients converge at the rate of the smallest
 dimension, and the corresponding variance clusters on all absorbed dimensions at once, counting
 each pair of observations that shares two or more categories once. {opt pitest} reports that
-statistic as the Mundlak test, and beneath it, for comparison, the statistic with the classical
-variance of the pooled regression, which uses standard errors of the wrong order and
-over-rejects, increasingly so as the sample grows.
+statistic as the Wald test of no correlated effects, and beneath it, for comparison, the
+statistic with the classical variance of the pooled regression, which uses standard errors of
+the wrong order and over-rejects, increasingly so as the sample grows.
 
 {marker r3}{...}
 {title:The notes in the output}
@@ -282,7 +282,7 @@ over-rejects, increasingly so as the sample grows.
 {pstd}
 {it:Note: the cell frequencies are not proportional.} Dimension-wise means would not reproduce
 the fixed-effects estimator on this support; the coefficients {cmd:cre} reports do, and the
-Mundlak gap says how far those means fall short, overall and, relative to the within variation
+Mundlak Gap says how far those means fall short, overall and, relative to the within variation
 of each regressor, coefficient by coefficient.
 
 {pstd}
@@ -340,7 +340,7 @@ the created controls in the data, and so is not available after {opt drop}.
 {synoptset 26 tabbed}{...}
 {p2col 5 26 30 2: Macros}{p_end}
 {synopt:{cmd:e(m_list)}}names of the created controls{p_end}
-{synopt:{cmd:e(cre_version)}}{cmd:0.1.2}{p_end}
+{synopt:{cmd:e(cre_version)}}{cmd:0.1.3}{p_end}
 {synopt:{cmd:e(cre_branch)}}{cmd:compact} or {cmd:components}{p_end}
 {synopt:{cmd:e(cre_fe)}}absorbed dimensions{p_end}
 
@@ -357,11 +357,11 @@ the created controls in the data, and so is not available after {opt drop}.
 {synopt:{cmd:e(cre_c_max)}}largest cell over all groups of two or more dimensions{p_end}
 {synopt:{cmd:e(cre_c2_max)}}largest pairwise cell{p_end}
 {synopt:{cmd:e(cre_G_max)}}largest category{p_end}
-{synopt:{cmd:e(cre_g_X)}}Mundlak gap (missing with weights){p_end}
+{synopt:{cmd:e(cre_g_X)}}Mundlak Gap (missing with weights){p_end}
 
 {p2col 5 26 30 2: Matrices (diagnostics)}{p_end}
 {synopt:{cmd:e(cre_N_fe)}}number of levels of each dimension, 1 x M{p_end}
-{synopt:{cmd:e(cre_gap_k)}}by regressor, 3 x K: the Mundlak gap, the within variation of the regressor relative to its projection onto the fixed effects, and the gap relative to that within variation (missing with weights){p_end}
+{synopt:{cmd:e(cre_gap_k)}}by regressor, 3 x K: the Mundlak Gap, the within variation of the regressor relative to its projection onto the fixed effects, and the gap relative to that within variation (missing with weights){p_end}
 
 {p2col 5 26 30 2: With {opt fevce()}}{p_end}
 {synopt:{cmd:e(cmd)}}{cmd:cre}; {cmd:e(cmd_wrapped)} is {cmd:regress}{p_end}
@@ -377,8 +377,8 @@ the created controls in the data, and so is not available after {opt drop}.
 {synopt:{cmd:e(cre_theta)}, {cmd:e(cre_theta_levels)}, {cmd:e(cre_sbar2)}, {cmd:e(cre_coef_sbar)}, {cmd:e(cre_minPF)}}estimated variance components and their levels ({cmd:plugin}){p_end}
 
 {p2col 5 26 30 2: With {opt pitest}}{p_end}
-{synopt:{cmd:e(cre_V_pi)}}variance of the coefficients on the controls, clustered on the absorbed dimensions{p_end}
-{synopt:{cmd:e(cre_pi_wald)}, {cmd:e(cre_pi_p)}, {cmd:e(cre_pi_df)}, {cmd:e(cre_pi_pd)}}Mundlak test statistic, p-value, degrees of freedom, and positive-definiteness flag{p_end}
+{synopt:{cmd:e(cre_V_pi)}}variance of the correlated-effects coefficients, clustered on the absorbed dimensions{p_end}
+{synopt:{cmd:e(cre_pi_wald)}, {cmd:e(cre_pi_p)}, {cmd:e(cre_pi_df)}, {cmd:e(cre_pi_pd)}}Wald statistic of no correlated effects, p-value, degrees of freedom, and positive-definiteness flag{p_end}
 {synopt:{cmd:e(cre_pi_trunc)}, {cmd:e(cre_pi_mineig)}}1 if negative eigenvalues were set to zero, and the smallest eigenvalue{p_end}
 {synopt:{cmd:e(cre_pi_wald_conv)}, {cmd:e(cre_pi_p_conv)}, {cmd:e(cre_pi_sigma2_pooled)}}the classical pooled-OLS comparator and its residual variance{p_end}
 {synopt:{cmd:e(cre_pi_N_ast)}}smallest number of levels of a dimension{p_end}
@@ -395,7 +395,7 @@ the created controls in the data, and so is not available after {opt drop}.
 {phang2}{stata "replace headroom = round(headroom)"}{p_end}
 {phang2}{stata "replace price = price / 1000"}{p_end}
 
-{pstd}Correlated random-effects regression with two absorbed dimensions; the coefficients on
+{pstd}Correlated-random-effects regression with two absorbed dimensions; the coefficients on
 {cmd:price} and {cmd:foreign} equal those of {cmd:reghdfe mpg price foreign, abs(headroom trunk)}{p_end}
 {phang2}{stata "cre, jm abs(headroom trunk): regress mpg price foreign"}{p_end}
 
@@ -409,11 +409,11 @@ the created controls in the data, and so is not available after {opt drop}.
 {pstd}Standard errors clustered on a variable that is not absorbed{p_end}
 {phang2}{stata "cre, jm fevce(cluster(rep78)) abs(headroom trunk): regress mpg price foreign"}{p_end}
 
-{pstd}The Mundlak test that the regressors are uncorrelated with the fixed effects{p_end}
+{pstd}The Wald test of no correlated effects{p_end}
 {phang2}{stata "cre, jm pitest fevce(union) abs(headroom trunk): regress mpg price foreign"}{p_end}
 {phang2}{stata "test m_price m_foreign"}{p_end}
 
-{pstd}Testing that the coefficient on the control of {cmd:price} equals 1 and that on {cmd:foreign} equals 0{p_end}
+{pstd}Testing that the correlated-effects coefficient of {cmd:price} equals 1 and that of {cmd:foreign} equals 0{p_end}
 {phang2}{stata "cre, jm pitest pinull(1 0) abs(headroom trunk): regress mpg price foreign"}{p_end}
 {phang2}{stata "predict double xb_pooled, xb"}{p_end}
 

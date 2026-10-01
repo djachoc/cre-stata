@@ -34,7 +34,7 @@ label var sb        "store x brand"
 label var storeweek "store x week"
 label var bw        "brand x week"
 
-* 1. The correlated random-effects regression and the support diagnostics.  The slopes are
+* 1. The correlated-random-effects regression and the support diagnostics.  The slopes are
 *    the three-way fixed-effects estimates; the diagnostics say that the cell frequencies are
 *    not proportional, so by-hand dimension-wise means would not reproduce them.
 cre, jm abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
@@ -72,8 +72,7 @@ cre, jm fevce(plugin) nodiag abs(sb storeweek bw): regress logmove lprice lp_pre
 *    included, and within a week across stores and brands
 cre, jm fevce(cluster(store week)) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
 
-* 4. The Mundlak test that the regressors are uncorrelated with the fixed effects, with its
-*    two comparators
+* 4. The Wald test of no correlated effects, with its classical comparator
 cre, jm pitest fevce(union) nodiag abs(sb storeweek bw): regress logmove lprice lp_prem lp_nat lp_sto deal feat
 
 * 5. Is the correlated-effects coefficient on the own price alone zero?

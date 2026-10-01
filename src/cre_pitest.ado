@@ -1,8 +1,8 @@
-*! version 0.1.1  20Sep2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
+*! version 0.1.3  30Sep2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
-* The Mundlak test of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
-* (2026), the correlated-effects coefficient section.  With Z = P_[Delta] X the
-* joint-projection control,
+* The Wald test of no correlated effects of Harrison, Canavire Bacarreza,
+* Jacho-Chavez and Rios-Avila (2026), the correlated-effects coefficient section.
+* With Z = P_[Delta] X the joint Mundlak control,
 * C_0 = [X, 1], C_1 = [X, Z, 1], Zt = M_{C_0} Z, pi_hat = (Zt'Zt)^-1 Zt'y and
 * u_hat = M_{C_1} y the pooled Mundlak residual,
 *   Upsilon = (N_* / n^2) sum_{A} (-1)^{|A|+1} sum_t g_t^(A) g_t^(A)',  g_t^(A) = sum_{o in t} zt_o u_o,

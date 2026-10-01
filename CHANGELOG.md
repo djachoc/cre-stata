@@ -1,5 +1,15 @@
 # cre changelog
 
+## 0.1.3 (alpha, 2026-09-30)
+
+- The wording of the output, the messages and the help file follows the paper's. The
+  coefficient on the joint Mundlak control is the correlated-effects coefficient, `pitest`
+  reports the Wald test of no correlated effects (the counterpart for several fixed-effect
+  dimensions of the regression-based Hausman test of Wooldridge, 2019), the header and
+  `e(title)` read "Correlated-random-effects regression", and the Mundlak Gap is capitalized as
+  in the paper. No command, option, name of a stored result or computation changed, and
+  `e(cre_version)` reads `0.1.3`.
+
 ## 0.1.2 (alpha, 2026-09-21)
 
 - The README, the help file and the notes in the output are shortened; the help file no longer

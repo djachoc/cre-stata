@@ -1,10 +1,11 @@
-*! version 0.1.2  21Sep2026  cre: correlated random effects by joint projection, with support diagnostics
+*! version 0.1.3  30Sep2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
+* v0.1.3  (alpha) the wording of the output and the help file follows the paper's
 * v0.1.2  (alpha) the notes in the output, the help file and the README shortened
 * v0.1.1  (alpha) pitest no longer computes or posts the dimension-wise comparator
 *         (e(cre_V_pi_dim), e(cre_pi_*_dim)), which the paper no longer reports
 * v0.1.0  (alpha) first public release: the joint-projection controls of the cre prefix
-*         command, plus the support diagnostics, the Mundlak gap by regressor,
+*         command, plus the support diagnostics, the Mundlak Gap by regressor,
 *         fevce() and pitest of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
 *         (2026); displays, notes and help say what each result means; the exact branch
 *         (fevce(lc), fevce(plugin)) on the reduced core, W'W of order D - N_max and never
@@ -116,8 +117,8 @@ program define cre, properties(prefix)
 				markout `touse' `cvars', strok
 			}
 			if "`pitest'"!="" & "`compact'"=="" {
-				di as err "pitest requires compact (or jm): the Mundlak test is on the" ///
-				   " coefficient of the single joint-projection control of each regressor"
+				di as err "pitest requires compact (or jm): the test of no correlated effects is on the" ///
+				   " coefficient of the single joint Mundlak control of each regressor"
 				exit 198
 			}
 		}
@@ -133,7 +134,7 @@ program define cre, properties(prefix)
 		local xnames `r(xnames)'
 		local dfa    `r(df_a)'
 
-		** support diagnostics and the Mundlak gap
+		** support diagnostics and the Mundlak Gap
 		local diagnames n M D d_delta d_exact connected proportional prop_dev ///
 		                c_max c2_max G_max N_ast g_X
 		if "`nodiag'"=="" {
@@ -186,7 +187,7 @@ program define cre, properties(prefix)
 					local F_`s' = r(`s')
 				}
 			}
-			** the coefficient on the joint-projection control, at its own rate
+			** the correlated-effects coefficient, at its own rate
 			if "`pitest'"!="" {
 				cre_pitest if `touse', abs(`felist') xf(`xflist') px(`pxlist') y(`y') ///
 				    rvec(`pinull') rmat(`pirest')
@@ -263,7 +264,7 @@ program define cre, properties(prefix)
 			adde local depvar "`y'"
 			adde local cmd_wrapped "`cmd'"
 			adde local cmd "cre"
-			adde local title "Correlated random-effects regression (joint projection)"
+			adde local title "Correlated-random-effects regression (joint projection)"
 			adde local predict "cre_p"
 			adde local cre_fevce "`fevce'"
 			adde local cre_clustvar `cv'
@@ -279,7 +280,7 @@ program define cre, properties(prefix)
 			}
 		}
 		adde local m_list `vlist'
-		adde local cre_version "0.1.2"
+		adde local cre_version "0.1.3"
 		if "`compact'"!="" adde local cre_branch "compact"
 		else adde local cre_branch "components"
 		adde local cre_fe `felist'
@@ -387,7 +388,7 @@ program myhdmean, rclass
 	***
 
 	** The joint projection P_[Delta] x of every regressor is kept, as
-	** __cre_px#, for the Mundlak-gap diagnostic; the caller drops them.
+	** __cre_px#, for the Mundlak Gap diagnostic; the caller drops them.
 	local pcnt 0
 	local dfa .
 	if "`compact'"=="" {
@@ -500,7 +501,7 @@ program cre_display_est
 		local desc "multiway clustered on `e(cre_clustvar)'"
 		local mean "allows arbitrary dependence within a cluster; clusters may overlap"
 	}
-	di as txt _n "Correlated random-effects regression" ///
+	di as txt _n "Correlated-random-effects regression" ///
 	   _col(46) "Number of obs" _col(66) "=" as res %13.0fc e(N)
 	di as txt "Slopes: multiway fixed-effects estimates" ///
 	   _col(46) "Rank of FE design" _col(66) "=" as res %13.0fc e(cre_d_delta)
@@ -560,12 +561,12 @@ program cre_display_est
 	}
 	else {
 		local q = e(cre_pi_df)
-		di as txt "{p 0 6 2}The coefficients on the Mundlak controls (" as res "`e(m_list)'" as txt ") are posted with standard errors clustered on the absorbed dimensions at the rate of the smallest one (N_* = " as res e(cre_pi_N_ast) as txt "); the covariance between the two blocks is set to zero.{p_end}"
+		di as txt "{p 0 6 2}The correlated-effects coefficients, on the joint Mundlak controls (" as res "`e(m_list)'" as txt "), are posted with standard errors clustered on the absorbed dimensions at the rate of the smallest one (N_* = " as res e(cre_pi_N_ast) as txt "); the covariance between the two blocks is set to zero.{p_end}"
 		if e(cre_pi_custom)==1 {
-			di as txt _n "Test of H0: R pi = r on the Mundlak controls (R in e(cre_pi_R), r in e(cre_pi_r))"
+			di as txt _n "Test of H0: R pi = r on the correlated-effects coefficients (R in e(cre_pi_R), r in e(cre_pi_r))"
 		}
 		else {
-			di as txt _n "Mundlak test (coefficients on the Mundlak controls = 0)"
+			di as txt _n "Wald test of no correlated effects (correlated-effects coefficients = 0)"
 			di as txt "H0: regressors uncorrelated with the fixed effects (random effects consistent)"
 		}
 		di as txt "{hline 79}"
@@ -583,7 +584,7 @@ program cre_display_est
 		di as txt "{p 0 6 2}Note: the classical statistic uses standard errors of the wrong order and over-rejects, increasingly so as the sample grows; the clustered statistic is the valid one.{p_end}"
 		if e(cre_pi_trunc)==1 {
 			local me = strtrim(string(e(cre_pi_mineig), "%9.3g"))
-			di as txt "{p 0 6 2}Note: the clustered variance of the controls was not positive semidefinite (smallest eigenvalue `me'); its negative eigenvalues were set to zero.{p_end}"
+			di as txt "{p 0 6 2}Note: the clustered variance of the correlated-effects coefficients was not positive semidefinite (smallest eigenvalue `me'); its negative eigenvalues were set to zero.{p_end}"
 		}
 	}
 end
@@ -613,7 +614,7 @@ program cre_display
 	   as txt "   c2_max = " as res e(cre_c2_max) ///
 	   as txt "   G_max = " as res e(cre_G_max) _c
 	if e(cre_g_X)<. {
-		di as txt "   Mundlak gap g_X = " as res %6.4f e(cre_g_X)
+		di as txt "   Mundlak Gap g_X = " as res %6.4f e(cre_g_X)
 		tempname gk
 		matrix `gk' = e(cre_gap_k)
 		local kn : colnames `gk'
@@ -626,10 +627,10 @@ program cre_display
 		}
 	}
 	else {
-		di as txt "   Mundlak gap g_X = " as res "." as txt " (not computed with weights)"
+		di as txt "   Mundlak Gap g_X = " as res "." as txt " (not computed with weights)"
 	}
 	di as txt "{hline 79}"
-	di as txt "{p 0 6 2}Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on an irregular support.{p_end}"
+	di as txt "{p 0 6 2}Note: the coefficients on the regressors equal the multiway fixed-effects (within) estimator on any observation structure.{p_end}"
 	if e(cre_proportional)==1 {
 		di as txt "{p 0 6 2}Note: the cell frequencies are proportional, so that dimension-wise means (egen ..., by() for each dimension) would also reproduce the fixed-effects estimator here.{p_end}"
 	}
