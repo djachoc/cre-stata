@@ -242,10 +242,12 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
   clustered on absorbed dimensions   chi2(2) =   165.68   Prob > chi2 = 0.0000
   for comparison:
     classical (pooled OLS)           chi2(2) =    11.66   Prob > chi2 = 0.0029
+  N_* c2_max/n = .432   N_* G_max^2/n^2 = .533
 -------------------------------------------------------------------------------
-Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows; the clustered
-      statistic is the valid one.
+Note: the classical statistic over-rejects. The clustered statistic assumes
+      additive shocks by absorbed category plus independent errors.
+Note: N_* c2_max/n or N_* G_max^2/n^2 exceeds 0.5; the clustered test is
+      reliable when both are small.
 
 Support diagnostics (compact controls)
 -------------------------------------------------------------------------------

@@ -1,7 +1,9 @@
-*! version 0.1.3  30Sep2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
+*! version 0.1.4  01Oct2026  cre_pitest: inference on the correlated-effects coefficient (Mata; needs ftools)
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
 * The Wald test of no correlated effects of Harrison, Canavire Bacarreza,
 * Jacho-Chavez and Rios-Avila (2026), the correlated-effects coefficient section.
+* Its asymptotic theory assumes additive category shocks and independent idiosyncratic
+* errors, and requires N_* c2_max / n and N_* G_max^2 / n^2 to be small; both are returned.
 * With Z = P_[Delta] X the joint Mundlak control,
 * C_0 = [X, 1], C_1 = [X, Z, 1], Zt = M_{C_0} Z, pi_hat = (Zt'Zt)^-1 Zt'y and
 * u_hat = M_{C_1} y the pooled Mundlak residual,
@@ -13,6 +15,9 @@
 * is returned for comparison.  No n x n object is formed.
 * 0.1.1 (2026-09-20): the dimension-wise sum (the |A| = 1 terms only), which the
 * paper no longer reports, is no longer computed or returned.
+* 0.1.4 (2026-10-01): the largest category G_max, the largest pairwise cell c2_max
+* (zero when M = 1) and the two ratios above are computed here, so that they are
+* available under nodiag.
 program cre_pitest, rclass
 	syntax [if] [in], abs(varlist) xf(varlist) px(varlist) y(varname) [rvec(numlist) rmat(name)]
 	marksample touse
@@ -50,7 +55,8 @@ program cre_pitest, rclass
 	matrix drop __cre_pi __cre_Vpi
 	return matrix pi = `pi'
 	return matrix V_pi = `V'
-	foreach s in n N_ast q df wald p pd trunc mineig wald_conv p_conv sigma2_pooled {
+	foreach s in n N_ast q df wald p pd trunc mineig wald_conv p_conv sigma2_pooled ///
+	             c2_max G_max cond_c2 cond_G {
 		return scalar `s' = scalar(__cre_`s')
 		scalar drop __cre_`s'
 	}
@@ -70,6 +76,7 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	real colvector y, u, pi, ev, rv, dif
 	real rowvector A, evr, sv
 	real scalar n, K, M, m, s, bit, sgn, Nast, W, p, pd, trunc, mineig, Wc, sig2, df
+	real scalar Gmax, c2max
 
 	fev = tokens(fes)
 	M = cols(fev)
@@ -88,11 +95,14 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 
 	L = J(n, M, .)
 	Nast = .
+	Gmax = 0
 	for (m = 1; m <= M; m++) {
 		F = factor(fev[m], touse)
 		L[., m] = F.levels
 		Nast = min((Nast, F.num_levels))
+		Gmax = max((Gmax, max(F.counts)))
 	}
+	c2max = 0
 	meat = J(K, K, 0)
 	for (s = 1; s < 2^M; s++) {
 		A = J(1, 0, .)
@@ -102,6 +112,7 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 		}
 		sgn = (-1)^(cols(A) + 1)
 		F = _factor(L[., A])
+		if (cols(A) == 2) c2max = max((c2max, max(F.counts)))
 		F.panelsetup()
 		Sg = panelsum(F.sort(S), F.info)
 		meat = meat + sgn * cross(Sg, Sg)
@@ -155,5 +166,9 @@ void cre_pitest_mata(string scalar fes, string scalar xfs, string scalar pxs,
 	st_numscalar("__cre_wald_conv", Wc)
 	st_numscalar("__cre_p_conv", chi2tail(df, Wc))
 	st_numscalar("__cre_sigma2_pooled", sig2)
+	st_numscalar("__cre_c2_max", c2max)
+	st_numscalar("__cre_G_max", Gmax)
+	st_numscalar("__cre_cond_c2", Nast * c2max / n)
+	st_numscalar("__cre_cond_G", Nast * Gmax^2 / n^2)
 }
 end

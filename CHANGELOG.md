@@ -1,5 +1,19 @@
 # cre changelog
 
+## 0.1.4 (alpha, 2026-10-01)
+
+- `pitest` says what its test assumes. The note under the test now reads "the classical
+  statistic over-rejects. The clustered statistic assumes additive shocks by absorbed category
+  plus independent errors", which is the setting in which the paper establishes the test.
+- `pitest` reports the two cell-size conditions the test needs, N_* c2_max/n and
+  N_* G_max^2/n^2, beneath the two statistics, and adds a note when either exceeds 0.5. They are
+  computed by `pitest` itself, so they are available under `nodiag`, and posted as
+  `e(cre_pi_c2_max)`, `e(cre_pi_G_max)`, `e(cre_pi_cond_c2)` and `e(cre_pi_cond_G)`.
+- Under `fevce(cluster())` with a variable that is not absorbed, a note says that the test
+  clusters on the absorbed dimensions only.
+- The help file states the assumptions of the test and describes the three notes. No other
+  computation changed, and `e(cre_version)` reads `0.1.4`.
+
 ## 0.1.3 (alpha, 2026-09-30)
 
 - The wording of the output, the messages and the help file follows the paper's. The

@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.1.3 30sep2026}{...}
+{* *! version 0.1.4 01oct2026}{...}
 {cmd:help cre}
 {hline}
 
@@ -194,8 +194,9 @@ small for them and the classical Wald statistic over-rejects, increasingly so as
 grows. {opt pitest} posts them beside the coefficients on the regressors, with a variance
 clustered on all absorbed dimensions at once and scaled at the right rate, the covariance
 between the two blocks being set to zero, and reports the test with this variance together with
-the classical statistic for comparison. Requires {opt jm}; without {opt fevce()}, the
-coefficients on the regressors are posted with {opt white}.
+the classical statistic for comparison. The test assumes that, beyond the absorbed effects, the
+disturbance is a sum of shocks by absorbed category and independent errors. Requires {opt jm};
+without {opt fevce()}, the coefficients on the regressors are posted with {opt white}.
 
 {phang}
 {opt pirest(matname)} and {opt pinull(numlist)} test the restriction R pi = r on the vector pi of
@@ -276,6 +277,13 @@ statistic as the Wald test of no correlated effects, and beneath it, for compari
 statistic with the classical variance of the pooled regression, which uses standard errors of
 the wrong order and over-rejects, increasingly so as the sample grows.
 
+{pstd}
+The test assumes that, beyond the absorbed effects, the disturbance is a sum of shocks by
+absorbed category and independent errors, and it ignores dependence between observations that
+share no absorbed category, including dependence along {opt cluster()} variables that are not
+absorbed. It also needs few observations in the largest pairwise cell and in the largest
+category, measured by N_* c2_max/n and N_* G_max^2/n^2, which {opt pitest} reports.
+
 {marker r3}{...}
 {title:The notes in the output}
 
@@ -303,6 +311,20 @@ grows and does not affect the validity of the tests.
 share a cell of two or more absorbed dimensions, so that there is no shared component to
 estimate and the estimator reduces to the homoskedastic one; {opt union} or {opt cluster()}
 allow for shared components without this requirement.
+
+{pstd}
+{it:Note: the classical statistic over-rejects.} Under {opt pitest}, the classical statistic uses
+standard errors of the wrong order. The clustered statistic is valid under the assumptions in
+{help cre##r2:The test of no correlated effects}.
+
+{pstd}
+{it:Note: N_* c2_max/n or N_* G_max^2/n^2 exceeds 0.5.} The test is asymptotically valid when
+both quantities are small. The threshold is a guide; it is not a test.
+
+{pstd}
+{it:Note: the test clusters on the absorbed dimensions only.} Under {opt fevce(cluster())} with
+a variable that is not absorbed, the standard errors of the slopes allow for dependence along
+it, but the test of no correlated effects does not.
 
 {pstd}
 {it:Note: the rank of the fixed-effect design was taken from reghdfe.} The number of levels
@@ -340,7 +362,7 @@ the created controls in the data, and so is not available after {opt drop}.
 {synoptset 26 tabbed}{...}
 {p2col 5 26 30 2: Macros}{p_end}
 {synopt:{cmd:e(m_list)}}names of the created controls{p_end}
-{synopt:{cmd:e(cre_version)}}{cmd:0.1.3}{p_end}
+{synopt:{cmd:e(cre_version)}}{cmd:0.1.4}{p_end}
 {synopt:{cmd:e(cre_branch)}}{cmd:compact} or {cmd:components}{p_end}
 {synopt:{cmd:e(cre_fe)}}absorbed dimensions{p_end}
 
@@ -382,6 +404,8 @@ the created controls in the data, and so is not available after {opt drop}.
 {synopt:{cmd:e(cre_pi_trunc)}, {cmd:e(cre_pi_mineig)}}1 if negative eigenvalues were set to zero, and the smallest eigenvalue{p_end}
 {synopt:{cmd:e(cre_pi_wald_conv)}, {cmd:e(cre_pi_p_conv)}, {cmd:e(cre_pi_sigma2_pooled)}}the classical pooled-OLS comparator and its residual variance{p_end}
 {synopt:{cmd:e(cre_pi_N_ast)}}smallest number of levels of a dimension{p_end}
+{synopt:{cmd:e(cre_pi_c2_max)}, {cmd:e(cre_pi_G_max)}}largest pairwise cell (0 with one dimension) and largest category{p_end}
+{synopt:{cmd:e(cre_pi_cond_c2)}, {cmd:e(cre_pi_cond_G)}}N_* c2_max/n and N_* G_max^2/n^2{p_end}
 {synopt:{cmd:e(cre_pi_q)}, {cmd:e(cre_pi_custom)}}number of controls; 1 when {opt pinull()} or {opt pirest()} was given{p_end}
 {synopt:{cmd:e(cre_pi_R)}, {cmd:e(cre_pi_r)}}restriction matrix and hypothesized value{p_end}
 {p2colreset}{...}

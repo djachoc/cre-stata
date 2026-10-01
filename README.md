@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/lifecycle-alpha-e0891c" alt="lifecycle: alpha">
-  <img src="https://img.shields.io/badge/version-0.1.3-0f6e73" alt="version 0.1.3">
+  <img src="https://img.shields.io/badge/version-0.1.4-0f6e73" alt="version 0.1.4">
   <img src="https://img.shields.io/badge/Stata-14%2B-083d4a" alt="Stata 14+">
   <img src="https://img.shields.io/badge/requires-reghdfe%20%7C%20ftools-5b7a80" alt="requires reghdfe and ftools">
   <img src="https://img.shields.io/badge/license-MIT-f4b942" alt="MIT license">
@@ -22,7 +22,7 @@ how far those means miss, the Mundlak Gap, overall and by regressor.
 
 The command implements the methods of Harrison, Canavire Bacarreza, Jacho-Chavez and Rios-Avila
 (2026) and is documented in Rios-Avila, Canavire Bacarreza, Harrison and Jacho-Chavez (2026).
-Version 0.1.3 is an alpha release, and the options may change before 1.0.
+Version 0.1.4 is an alpha release, and the options may change before 1.0.
 
 ## Installation
 
@@ -93,10 +93,10 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
   clustered on absorbed dimensions   chi2(6) =    77.36   Prob > chi2 = 0.0000
   for comparison:
     classical (pooled OLS)           chi2(6) =   510.36   Prob > chi2 = 0.0000
+  N_* c2_max/n = .0086   N_* G_max^2/n^2 = .00119
 -------------------------------------------------------------------------------
-Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows; the clustered
-      statistic is the valid one.
+Note: the classical statistic over-rejects. The clustered statistic assumes
+      additive shocks by absorbed category plus independent errors.
 ```
 
 The own-price elasticity is −1.55 under every variance estimator. The standard errors differ,

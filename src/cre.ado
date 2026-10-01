@@ -1,5 +1,7 @@
-*! version 0.1.3  30Sep2026  cre: correlated random effects by joint projection, with support diagnostics
+*! version 0.1.4  01Oct2026  cre: correlated random effects by joint projection, with support diagnostics
 *! Fernando Rios-Avila, Gustavo Canavire Bacarreza, Benjamin O. Harrison, David Jacho-Chavez
+* v0.1.4  (alpha) pitest says what its test assumes and reports the two cell-size
+*         conditions it needs; a note when cluster() names a dimension pitest ignores
 * v0.1.3  (alpha) the wording of the output and the help file follows the paper's
 * v0.1.2  (alpha) the notes in the output, the help file and the README shortened
 * v0.1.1  (alpha) pitest no longer computes or posts the dimension-wise comparator
@@ -197,7 +199,8 @@ program define cre, properties(prefix)
 				tempname bpi Vpi
 				matrix `bpi' = r(pi)
 				matrix `Vpi' = r(V_pi)
-				local piscalars N_ast q df wald p pd trunc mineig wald_conv p_conv sigma2_pooled custom
+				local piscalars N_ast q df wald p pd trunc mineig wald_conv p_conv sigma2_pooled custom ///
+				                c2_max G_max cond_c2 cond_G
 				foreach s of local piscalars {
 					local P_`s' = r(`s')
 				}
@@ -280,7 +283,7 @@ program define cre, properties(prefix)
 			}
 		}
 		adde local m_list `vlist'
-		adde local cre_version "0.1.3"
+		adde local cre_version "0.1.4"
 		if "`compact'"!="" adde local cre_branch "compact"
 		else adde local cre_branch "components"
 		adde local cre_fe `felist'
@@ -580,8 +583,23 @@ program cre_display_est
 		di as txt "    classical (pooled OLS)" ///
 		   _col(38) "chi2(`q') = " as res %8.2f e(cre_pi_wald_conv) ///
 		   as txt "   Prob > chi2 = " as res %6.4f e(cre_pi_p_conv)
+		local k1 = strtrim(string(e(cre_pi_cond_c2), "%9.3g"))
+		local k2 = strtrim(string(e(cre_pi_cond_G), "%9.3g"))
+		di as txt "  N_* c2_max/n = " as res "`k1'" ///
+		   as txt "   N_* G_max^2/n^2 = " as res "`k2'"
 		di as txt "{hline 79}"
-		di as txt "{p 0 6 2}Note: the classical statistic uses standard errors of the wrong order and over-rejects, increasingly so as the sample grows; the clustered statistic is the valid one.{p_end}"
+		di as txt "{p 0 6 2}Note: the classical statistic over-rejects. The clustered statistic assumes additive shocks by absorbed category plus independent errors.{p_end}"
+		if e(cre_pi_cond_c2)>0.5 | e(cre_pi_cond_G)>0.5 {
+			di as txt "{p 0 6 2}Note: N_* c2_max/n or N_* G_max^2/n^2 exceeds 0.5; the clustered test is reliable when both are small.{p_end}"
+		}
+		if "`e(cre_fevce)'"=="cluster" {
+			local fe `e(cre_fe)'
+			local cl `e(cre_clustvar)'
+			local extra : list cl - fe
+			if "`extra'"!="" {
+				di as txt "{p 0 6 2}Note: the test clusters on the absorbed dimensions only, not on " as res "`extra'" as txt ".{p_end}"
+			}
+		}
 		if e(cre_pi_trunc)==1 {
 			local me = strtrim(string(e(cre_pi_mineig), "%9.3g"))
 			di as txt "{p 0 6 2}Note: the clustered variance of the correlated-effects coefficients was not positive semidefinite (smallest eigenvalue `me'); its negative eigenvalues were set to zero.{p_end}"

@@ -408,10 +408,10 @@ H0: regressors uncorrelated with the fixed effects (random effects consistent)
   clustered on absorbed dimensions   chi2(6) =    77.36   Prob > chi2 = 0.0000
   for comparison:
     classical (pooled OLS)           chi2(6) =   510.36   Prob > chi2 = 0.0000
+  N_* c2_max/n = .0086   N_* G_max^2/n^2 = .00119
 -------------------------------------------------------------------------------
-Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows; the clustered
-      statistic is the valid one.
+Note: the classical statistic over-rejects. The clustered statistic assumes
+      additive shocks by absorbed category plus independent errors.
 
 . 
 . * 5. Is the correlated-effects coefficient on the own price alone zero?
@@ -459,10 +459,10 @@ Test of H0: R pi = r on the correlated-effects coefficients (R in e(cre_pi_R),
   clustered on absorbed dimensions   chi2(1) =     2.73   Prob > chi2 = 0.0987
   for comparison:
     classical (pooled OLS)           chi2(1) =    14.46   Prob > chi2 = 0.0001
+  N_* c2_max/n = .0086   N_* G_max^2/n^2 = .00119
 -------------------------------------------------------------------------------
-Note: the classical statistic uses standard errors of the wrong order and
-      over-rejects, increasingly so as the sample grows; the clustered
-      statistic is the valid one.
+Note: the classical statistic over-rejects. The clustered statistic assumes
+      additive shocks by absorbed category plus independent errors.
 
 . 
 end of do-file
